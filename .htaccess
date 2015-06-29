@@ -1,0 +1,19 @@
+# Begin Kancolle
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# DMM OpenSocial Capturing Proxy
+RewriteCond	%{HTTP_HOST}		^osapi\.dmm\.com$	[NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$			/osproxy.php			[NC,NS,L]
+
+# Specific Rewrites
+# World Logo
+RewriteRule ^kcs/resources/image/world/(.*)_l.png$	/kcres/world_l.png	[NC,NS,L]
+RewriteRule ^kcs/resources/image/world/(.*)_s.png$	/kcres/world_s.png	[NC,NS,L]
+
+# General SWF-Requests rewrite
+RewriteRule ^kcs/(.*)$			/kcres/main.php		[NC,NS,L]
+RewriteRule ^kcsapi/(.*)$		/kcapi/main.php		[NC,NS,L]
+</IfModule>

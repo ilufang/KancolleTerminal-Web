@@ -1,0 +1,121 @@
+/**
+ *	style
+ *
+ *	Main stylesheet.
+ *	Using material color theme: blue;
+ *	http://www.google.com/design/spec/style/color.html#color-color-palette
+ *
+ *	2015 by ilufang
+*/
+
+/*
+50	#E3F2FD
+100	#BBDEFB
+200	#90CAF9
+300	#64B5F6
+400	#42A5F5
+500	#2196F3
+600	#1E88E5
+700	#1976D2
+800	#1565C0
+900	#0D47A1
+*/
+
+body {
+	margin: 0px;
+	padding: 0px;
+	background: #E1F5FE;
+	color: black;
+	font-family: Helvetica, Trebuchet, sans-serif, "STHeiti", "SimHei";
+	-webkit-tap-highlight-color: transparent;
+	tap-hightlight-color: transparent;
+}
+
+/* Main Title */
+h1 {
+	display: block;
+	margin: 0px;
+	padding: 0.7em 1.5em;
+	background: #2196F3;
+	color: white;
+	font-size:1.3em;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+/* Box Title */
+h2 {
+	display: block;
+	margin: 0px;
+	padding: 0em 0.4em 1em;
+	background: none;
+	color: black;
+	font-size:1.1em;
+}
+
+/* Card */
+.box {
+	display: inline-block;
+	margin: 3em;
+	padding: 1.5em;
+	background: white;
+	color: black;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+	vertical-align: top;
+}
+
+input, label {
+	display: inline-block;
+	margin: 1em 0em;
+	padding: 0px;
+	outline: 0;
+}
+
+input[type=text], input[type=password] {
+	color: #666;
+	background: none;
+	border: none;
+	border-bottom: solid 2px #ccc;
+}
+
+input[type=text]:hover, input[type=password]:hover, input[type=text]:focus, input[type=password]:focus {
+	color: black;
+	border-bottom: solid 2px #64B5F6;
+}
+
+input[type=text]:active, input[type=password]:active {
+	color: black;
+	border-bottom: solid 2px #2196F3;
+}
+
+input[type=button], input[type=submit] {
+	padding: 0.6em;
+	font-size: 1.03em;
+	font-weight: bold;
+	color: white;
+	background: #2196F3;
+	border: none;
+	text-align: center;
+	border-radius: 3px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+input[type=button]:hover, input[type=submit]:hover {
+	background: #64B5F6;
+}
+input[type=button]:active, input[type=submit]:active {
+	background: #1565C0;
+}
+
+hr {
+	border: 1px solid #ccc;
+}
+
+code {
+	display: inline-block;
+	background: #eee;
+	padding: 0.2em;
+}
+
+footer {
+	text-align: center;
+}
+
