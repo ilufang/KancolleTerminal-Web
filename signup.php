@@ -24,30 +24,34 @@ if ($_REQUEST["eula"]==="accept") {
 	$user = $_REQUEST["username"];
 	$pswd = $_REQUEST["password"];
 	$gamemode = intval($_REQUEST["gamemode"]);
-	if (isset($user)&&isset($pswd)&&isset($gamemode)) {
-		require_once "KCSql.class.php";
-		if (KCSql::inst()->selectAll("hub_users")->where("username='$user'")->query()!==true) {
-			$errmsg = "用户名已被注册";
-		} else {
-			if(KCSql::inst()->insert(array("username"=>$user,"password"=>sha1($pswd),"gamemode"=>$gamemode,"token"=>randToken()),"hub_users")->query()) {
-				$memberid = KCSql::inst()->insertId();
-				switch ($gamemode) {
-					case 0:
-					case 1:
-					case 2:
-						$errmsg = "W.I.P.";
-						break;
-					case 3:
-						if(KCSql::inst()->insert(array("memberid"=>$memberid,"lastupdate"=>"Never(未定义)"),"forward_users")->query()) {
-							header("Location: home.php?user=$user&pswd=$pswd");
-							die();
-						} else {
-							$errmsg = "数据库请求错误: ".KCSql::inst()->error();
-						}
-						break;
-				}
+	if (strlen($pswd)!=128) {
+		$errmsg = "脚本错误. 上传密码时未经加密.";
+	} else {
+		if (isset($user)&&isset($pswd)&&isset($gamemode)) {
+			require_once "KCSql.class.php";
+			if (KCSql::inst()->selectAll("hub_users")->where("username='$user'")->query()!==true) {
+				$errmsg = "用户名已被注册";
 			} else {
-				$errmsg = "数据库请求错误: ".KCSql::inst()->error();
+				if(KCSql::inst()->insert(array("username"=>$user,"password"=>sha1($pswd),"gamemode"=>$gamemode,"token"=>randToken()),"hub_users")->query()) {
+					$memberid = KCSql::inst()->insertId();
+					switch ($gamemode) {
+						case 0:
+						case 1:
+						case 2:
+							$errmsg = "W.I.P.";
+							break;
+						case 3:
+							if(KCSql::inst()->insert(array("memberid"=>$memberid,"lastupdate"=>"Never(未定义)"),"forward_users")->query()) {
+								header("Location: home.php?user=$user&pswd=$pswd");
+								die();
+							} else {
+								$errmsg = "数据库请求错误: ".KCSql::inst()->error();
+							}
+							break;
+					}
+				} else {
+					$errmsg = "数据库请求错误: ".KCSql::inst()->error();
+				}
 			}
 		}
 	}
@@ -62,11 +66,26 @@ if ($_REQUEST["eula"]==="accept") {
 	<script type="text/javascript" src="js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="js/sha.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<script type="text/javascript">
+		function signup() {
+			var pswd = document.getElementById('password').value;
+			var shaObj = new jsSHA("SHA-512", "TEXT");
+			shaObj.update(pswd);
+			pswd = shaObj.getHash("HEX");
+			if (document.getElementById("savecreds").checked) {
+				$.cookie("username", user, { expires: 60, path: '/' });
+				$.cookie("passhash", pswd, { expires: 60, path: '/' });
+			}
+			document.getElementById('password').value = pswd;
+			return true;
+		}
+	</script>
+
 </head>
 <body>
 	<h1>Kancolle Terminal</h1>
 	<div class="box" style="width:80%">
-		<form method="POST" onsubmit="signup();">
+		<form method="POST" onsubmit="signup()">
 			<h2>用户注册</h2>
 			<span style="color:red"><?php echo $errmsg;?></span><br />
 			<input type="text" name="username" placeholder="用户名" required value="<?php if (isset($_REQUEST["username"]))echo $_REQUEST["username"]; ?>"/><br />
@@ -102,18 +121,5 @@ if ($_REQUEST["eula"]==="accept") {
 	<footer>
 		本站可能在低级浏览器下布局异常(如KCV内置的IE)
 	</footer>
-	<script type="text/javascript">
-		function signup() {
-			var pswd = document.getElementById('password').value;
-			var shaObj = new jsSHA("SHA-512", "TEXT");
-			shaObj.update(pswd);
-			pswd = shaObj.getHash("HEX");
-			if (document.getElementById("savecreds").checked) {
-				$.cookie("username", user, { expires: 60, path: '/' });
-				$.cookie("passhash", pswd, { expires: 60, path: '/' });
-			}
-			document.getElementById('password').value = pswd;
-		}
-	</script>
 </body>
 </html>
