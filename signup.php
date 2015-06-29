@@ -68,6 +68,7 @@ if ($_REQUEST["eula"]==="accept") {
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	<script type="text/javascript">
 		function signup() {
+			var user = document.getElementById('username').value;
 			var pswd = document.getElementById('password').value;
 			var shaObj = new jsSHA("SHA-512", "TEXT");
 			shaObj.update(pswd);
@@ -88,7 +89,7 @@ if ($_REQUEST["eula"]==="accept") {
 		<form method="POST" onsubmit="signup()">
 			<h2>用户注册</h2>
 			<span style="color:red"><?php echo $errmsg;?></span><br />
-			<input type="text" name="username" placeholder="用户名" required value="<?php if (isset($_REQUEST["username"]))echo $_REQUEST["username"]; ?>"/><br />
+			<input type="text" name="username" placeholder="用户名" id="username" required value="<?php if (isset($_REQUEST["username"]))echo $_REQUEST["username"]; ?>"/><br />
 			<input type="password" name="password" id="password" placeholder="密码" required /><br />
 			游戏模式:
 			<select name="gamemode">
@@ -110,12 +111,6 @@ if ($_REQUEST["eula"]==="accept") {
 			<input type="checkbox" name="eula" required value="accept"><label>我已阅读,了解并同意上述条款</label><br />
 			<input type="checkbox" id="savecreds"><label>自动登录</label><br />
 			<input type="submit" value="注册"/>
-		</form>
-	</div>
-	<div style="display:none">
-		<form id="redir" method="POST" action="home.php">
-			<input type="hidden" name="user" id="jmp_user" />
-			<input type="hidden" name="pswd" id="jmp_pswd" />
 		</form>
 	</div>
 	<footer>
