@@ -11,7 +11,7 @@
 header("Content-Type: application/json");
 require_once 'KCUser.class.php';
 $user = new KCUser();
-if (!$user->initWithAuth($_REQUEST["username"],$_REQUEST["passhash"])) {
+if (!$user->initWithToken($_REQUEST["token"])) {
 	die(json_encode(array("success"=>false, "reason"=>"用户验证失败")));
 }
 if ($user->gamemode!=3) {

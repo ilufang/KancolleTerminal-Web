@@ -11,6 +11,11 @@
 // Authenticate first
 require_once 'KCUser.class.php';
 
+if (!$_REQUEST["user"]) {
+	header("Location: index.php");
+	die();
+}
+
 $user = new KCUser();
 if (!$user->initWithAuth($_REQUEST["user"],$_REQUEST["pswd"])) {
 	header("Location: index.php?action=flush");
@@ -29,7 +34,8 @@ if (!$user->initWithAuth($_REQUEST["user"],$_REQUEST["pswd"])) {
 	<script type="text/javascript">
 	var user = {
 		username: '<?php echo $_REQUEST["user"]?>',
-		passhash: '<?php echo $_REQUEST["pswd"]?>'
+		passhash: '<?php echo $_REQUEST["pswd"]?>',
+		token: '<?php echo $user->token;?>'
 	};
 	function logout() {
 		$.removeCookie("username");
@@ -40,24 +46,22 @@ if (!$user->initWithAuth($_REQUEST["user"],$_REQUEST["pswd"])) {
 </head>
 <body>
 <h1>Kancolle Terminal</h1>
-<div class="box" style="width:80%">
-	<div style="text-align:right">
-		<?php echo $_REQUEST["user"]?> | 
-		<a href="javascript:logout()">退出</a>
-	</div>
-	<?php
-		switch ($user->gamemode) {
-			case 0:
-			case 1:
-			case 2:
-				echo "Not Yet Implemented";
-				break;
-			case 3:
-				include 'forwardhome.php';
-				break;
-		}
-	?>
+<div style="text-align:right;padding:2em;">
+	<?php echo $_REQUEST["user"]?> | 
+	<a href="javascript:logout()">退出</a>
 </div>
+<?php
+	switch ($user->gamemode) {
+		case 0:
+		case 1:
+		case 2:
+			echo "Not Yet Implemented";
+			break;
+		case 3:
+			include 'forwardhome.php';
+			break;
+	}
+?>
 <footer>
 本站可能在低级浏览器下布局异常(如KCV内置的IE)
 </footer>

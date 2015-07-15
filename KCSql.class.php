@@ -54,6 +54,8 @@ public function insertId() {
  *	Make query and return result as an array of associative arrays
  */
 public function querySql($sql) {
+	file_put_contents("sql.txt", $sql);
+
 	global $config;
 
 	if (!$this->con) {
@@ -61,7 +63,9 @@ public function querySql($sql) {
 		if ($this->con->connect_errno) {
 			return false;
 		}
+		$this->con->set_charset("utf8");
 	}
+
 
 	$result = $this->con->query($sql);
 
@@ -103,6 +107,7 @@ public function query() {
 public function sqlarr($arr) {
 	foreach ($arr as $key => &$value) {
 		if (is_string($value)) {
+			$value = $this->con->escape_string($value);
 			$value="'$value'";
 		}
 	}
@@ -146,6 +151,7 @@ public function update($data, $table) {
 	$entries = array();
 	foreach ($data as $key => &$value) {
 		if (is_string($value)) {
+			$value = $this->con->escape_string($value);
 			$value = "'$value'";
 		}
 		$entries[] = "$key=$value";

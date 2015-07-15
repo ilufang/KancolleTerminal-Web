@@ -10,21 +10,22 @@
 require_once "../KCForwardUser.class.php";
 require_once "../config.php";
 
+require_once 'KCLogger.class.php';
 
 class KCRequest {
 
 // Pre-process parameters
-private $uri, $post, $headers;
+public $uri, $post, $headers;
 // Request type, string, values are:
 // REQUEST:	Forward this request to the server
 // REWRITE:	Process by the internal kc engine
 // SUCCESS:	Completed request
 // FAILURE:	Bad request
-private $req_type,$errno=0,$errmsg;
+public $req_type,$errno=0,$errmsg;
 // Request response, json array (exclude api_status)
-private $response;
+public $response;
 // User session
-private $user;
+public $user;
 
 /**
  *	Constructor
@@ -82,6 +83,7 @@ function forwardRequest() {
 	global $config;
 	foreach (getallheaders() as $key => $value) {
 		$value = str_ireplace($config["serveraddr"], $server, $value);
+		$value = str_ireplace("home.php", "kcs/mainD2.swf?api_token=".$_REQUEST["api_token"], $value);
 		$headers[] = "$key: $value";
 	}
 
@@ -102,14 +104,14 @@ function forwardRequest() {
 		//clean duplicate header that seems to appear on fastcgi with output buffer on some servers!!
 		$response = str_replace("HTTP/1.1 100 Continue\r\n\r\n","",$response);
 
-		$ar = explode("\r\n\r\n", $response, 2); 
+		$ar = explode("\r\n\r\n", $response, 2);
 
 
 		$header = $ar[0];
 		$body = $ar[1];
 
 		//handle headers - simply re-outputing them
-		$header_ar = split(chr(10),$header); 
+		$header_ar = split(chr(10),$header);
 		foreach($header_ar as $k=>$v){
 			if(!preg_match("/^Transfer-Encoding/",$v)){
 				$v = str_replace($base,$mydomain,$v); //header rewrite if needed
@@ -162,8 +164,64 @@ function beforeRequest() {
  */
 function afterRequest() {
 	// TODO
+	if ($this->errno ==1 ) {
+		KCLogger::request($this);
+	}
 }
 
+/**
+ *	replaceKCAcessArgs
+ *
+ *	replace %{} variables
+ *
+ *	@return The argument after replacement
+ */
+function replaceKCAcessArgs($str) {
+	$str = str_ireplace("%{REQUEST_URI}", $this->uri, $str);
+	$str = str_ireplace("%{QUERY_STRING}", $this->post, $str);
+	return $str;
+}
+
+/**
+ *	translate
+ *
+ *	Raw string replace right before returning the response
+ *	Should be used on gamemode=3 (or other mode that $user->kcaccess exists)
+ */
+function translate($data) {
+	if (!isset($this->user->kcaccess)) {
+		return $data;
+	}
+	$cond_subject = " ";
+	$cond_rule = "(.*)";
+	foreach ($this->user->kcaccess as $entry) {
+		$entry["arg1"] = $this->replaceKCAcessArgs($entry["arg1"]);
+		$entry["arg2"] = $this->replaceKCAcessArgs($entry["arg2"]);
+		switch ($entry["type"]) {
+			case '':
+			case 'RewriteRule':
+			case 'rule':
+			case 'translate':
+				if (preg_match($cond_rule, $cond_subject)!=0) {
+					$data = preg_replace("/$entry[arg1]/", $entry["arg2"], $data);
+				}
+				$cond_subject = " ";
+				$cond_rule = "(.*)";
+				break;
+			case 'RewriteCond':
+			case "condition":
+				$cond_subject = $entry["arg1"];
+				$cond_rule = $entry["arg2"];
+				break;
+		}
+		foreach (explode(",", $entry['option']) as $option) {
+			switch ($option) {
+
+			}
+		}
+	}
+	return $data;
+}
 
 /**
  *	generateResponseString
@@ -189,7 +247,7 @@ function generateResponseString() {
 			$result_msg = "Curl Error: ".$this->errmsg;
 			break;
 		case 4010:
-			$result_msg = "Authentication required. Cannot process requests from unknown user";
+			$result_msg = "Authentication required. Cannot process requests from unknown user: ".$_REQUEST["api_token"];
 			break;
 		case 4011:
 			$result_msg = "Unknown gamemode";
@@ -197,7 +255,8 @@ function generateResponseString() {
 	}
 
 	$response = array("api_result"=>$this->errno, "api_result_msg"=>$result_msg, "api_data"=>$this->response);
-	return "svdata=".json_encode($response);
+	$json = $this->translate(json_encode($response));
+	return "svdata=$json";
 }
 
 

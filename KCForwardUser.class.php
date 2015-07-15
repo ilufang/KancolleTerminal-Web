@@ -12,7 +12,7 @@ require_once "KCUser.class.php";
 
 class KCForwardUser {
 
-public $id, $server, $dmmid, $token, $lastupdate, $starttime;
+public $id, $server, $dmmid, $token, $lastupdate, $starttime, $kcaccess;
 public $init_status = false;
 
 /**
@@ -28,6 +28,7 @@ function init($info) {
 	$this->lastupdate = $info["lastupdate"];
 	$this->token = $info["token"];
 	$this->starttime = $info["starttime"];
+	$this->kcaccess = json_decode($info["kcaccess"],true);
 
 	$this->init_status = true;
 }
