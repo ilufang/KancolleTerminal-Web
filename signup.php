@@ -93,9 +93,9 @@ if ($_REQUEST["eula"]==="accept") {
 			<input type="password" name="password" id="password" placeholder="密码" required /><br />
 			游戏模式:
 			<select name="gamemode">
-				<option value="3">观察者/转发</option>
+				<option value="3">转发</option>
 			</select>
-			<p>
+			<!--p>
 				<b>关于游戏模式</b><br/>
 				(对,gamemode是仿Minecraft的,不用在意)
 				<ol start="0">
@@ -107,8 +107,8 @@ if ($_REQUEST["eula"]==="accept") {
 			</p>
 			<div style="height:8em;overflow:auto;border: 1px dashed #ccc;"><?php
 			echo file_get_contents("eula.html");
-			?></div>
-			<input type="checkbox" name="eula" required value="accept"><label>我已阅读,了解并同意上述条款</label><br />
+			?></div-->
+			<input type="hidden" name="eula" required value="accept"><!--label>我已阅读,了解并同意上述条款</label--><br />
 			<input type="checkbox" id="savecreds"><label>自动登录</label><br />
 			<input type="submit" value="注册"/>
 		</form>

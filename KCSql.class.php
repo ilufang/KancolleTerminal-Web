@@ -48,6 +48,23 @@ public function insertId() {
 	return $this->con->insert_id;
 }
 
+
+/**
+ *	constructor
+ *
+ *	Connect to db
+ */
+function __construct() {
+	global $config;
+
+	$this->con = new mysqli($config["mysql_host"],$config["mysql_user"],$config["mysql_pswd"],$config["mysql_db"]);
+	if ($this->con) {
+		$this->con->set_charset("utf8");
+	} else {
+		file_put_contents("sql.txt", "Connect fail: ".$this->con->connect_error);
+	}
+}
+
 /**
  *	query - Manual
  *
@@ -61,6 +78,7 @@ public function querySql($sql) {
 	if (!$this->con) {
 		$this->con = new mysqli($config["mysql_host"],$config["mysql_user"],$config["mysql_pswd"],$config["mysql_db"]);
 		if ($this->con->connect_errno) {
+			file_put_contents("sql.txt", "Connect fail");
 			return false;
 		}
 		$this->con->set_charset("utf8");
@@ -94,7 +112,6 @@ public function querySql($sql) {
 
 
 public function query() {
-	file_put_contents("sql.txt", $this->sql);
 	return $this->querySql($this->sql);
 }
 
@@ -106,14 +123,13 @@ public function query() {
  */
 public function sqlarr($arr) {
 	foreach ($arr as $key => &$value) {
-		if (is_string($value)) {
+		if (is_string($value) && $value!=="NOW()") {
 			$value = $this->con->escape_string($value);
 			$value="'$value'";
 		}
 	}
 	return implode(",", $arr);
 }
-
 
 // Major actions
 
@@ -150,7 +166,7 @@ public function update($data, $table) {
 	$this->sql = "UPDATE $config[mysql_prefix]_$table\n";
 	$entries = array();
 	foreach ($data as $key => &$value) {
-		if (is_string($value)) {
+		if (is_string($value) && $value !== "NOW()") {
 			$value = $this->con->escape_string($value);
 			$value = "'$value'";
 		}
@@ -211,6 +227,6 @@ public static function createDB() {
 	$con->query($sql);
 
 }
-	
+
 }
 

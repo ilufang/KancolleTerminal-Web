@@ -25,25 +25,64 @@ body {
 	margin: 0px;
 	padding: 0px;
 	background: #E1F5FE;
+/*	background-color: white;
+	background-image: url(tanaka.png);*/
+	background-attachment: fixed;
 	color: black;
 	font-family: Helvetica, Trebuchet, sans-serif, "STHeiti", "SimHei";
 	-webkit-tap-highlight-color: transparent;
 	tap-hightlight-color: transparent;
 }
 
-/* Main Title */
-h1 {
-	display: block;
+/* Main Title Toolbar */
+.toolbar {
+	position: fixed;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+	top: 0px;
 	margin: 0px;
-	padding: 0.7em 1.5em;
+	padding: 0.7em 0em;
 	background: #2196F3;
 	color: white;
-	font-size:1.3em;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
+/* Toolbar Caption */
+.toolbar h1 {
+	display: inline-block;
+	text-align: left;
+	padding: 0px;
+	margin: 0em 1.5em;
+	font-size: 1.3em;
+}
 
-/* Box Title */
-h2 {
+/* Toolbar links */
+.toolbar div a {
+	padding: 0.3em;
+	margin: -0.3em;
+	border-radius: 0.2em;
+	display: inline-block;
+	color: white;
+	text-decoration: none;
+}
+.toolbar div a:hover {
+	background: rgba(255,255,255,0.3);
+}
+
+
+
+/* Toolbar actions */
+.toolbar div {
+	display: inline-block;
+	text-align: right;
+	padding: 0px;
+	margin: 0em 1.5em;
+	vertical-align: middle;
+}
+
+/* Box Caption */
+.box h2 {
 	display: block;
 	margin: 0px;
 	padding: 0em 0.4em 1em;
@@ -54,8 +93,8 @@ h2 {
 
 /* Card */
 .box {
-	display: inline-block;
-	margin: 3em;
+	display: block;
+	margin: 2em;
 	padding: 1.5em;
 	background: white;
 	color: black;
@@ -70,7 +109,7 @@ input, label {
 	outline: 0;
 }
 
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=number] {
 	color: #666;
 	background: none;
 	border: none;
@@ -87,7 +126,9 @@ input[type=text]:active, input[type=password]:active {
 	border-bottom: solid 2px #2196F3;
 }
 
-input[type=button], input[type=submit] {
+input[type=button], input[type=submit], .button, .button:visited {
+	display: inline-block;
+	text-decoration: none;
 	padding: 0.6em;
 	font-size: 1.03em;
 	font-weight: bold;
@@ -98,10 +139,10 @@ input[type=button], input[type=submit] {
 	border-radius: 3px;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
-input[type=button]:hover, input[type=submit]:hover {
+input[type=button]:hover, input[type=submit]:hover, .button:hover {
 	background: #64B5F6;
 }
-input[type=button]:active, input[type=submit]:active {
+input[type=button]:active, input[type=submit]:active, .button:hover {
 	background: #1565C0;
 }
 

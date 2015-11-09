@@ -1,0 +1,111 @@
+
+#prophet table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#prophet table tr td {
+  padding-bottom: 0px;
+  border: none;
+}
+#prophet .progress {
+  border-radius: 0px;
+  background-color: inherit;
+}
+#prophet .hp-progress .progress {
+  height: 22px;
+}
+#prophet .hp-progress .progress .progress-bar {
+  font-size: 13px;
+  line-height: 22px;
+}
+#prophet .hp-progress .progress {
+  position: relative;
+  margin-bottom: 1px;
+}
+#prophet .hp-progress .progress-bar span span {
+  position: absolute;
+  width: 100%;
+  display: block;
+}
+#prophet .table {
+  margin-bottom: 8px;
+}
+#prophet .alert {
+  background-color: #375a7f;
+  border-color: #375a7f;
+  color: #ffffff;
+}
+
+
+
+#prophet .line {
+  display: block;
+}
+
+#prophet .shiptag {
+  display: inline-block;
+  font-weight: bold;
+  color: white;
+  margin: 2px;
+  padding: 0px 3px;
+  border-radius: 4px;
+  background: #666666;
+}
+
+#prophet .not-damaged {
+  background: #66ff66;
+  color: black;
+}
+
+#prophet .lightly-damaged {
+  background: #ffff66;
+  color: black;
+}
+
+#prophet .moderately-damaged {
+  background: #ffb266;
+  color: black;
+}
+
+#prophet .heavily-damaged {
+  background: #ff6666;
+  color: black;
+}
+
+#prophet .completely-damaged {
+  background: #666666;
+  color: #66ccff;
+}
+
+#prophet .allied {
+  color: #66ff66;
+}
+
+#prophet .enemy {
+  color: #ff6666;
+}
+
+#prophet .at_follow {
+  opacity: 0.0;
+}
+
+/*
+#prophet .dam_crit {
+  color: yellow;
+  font-weight: bold;
+}
+*/
+
+
+#prophet .dam_miss {
+  color: #999;
+}
+
+#prophet table {
+  width: 100%;
+}
+
+#prophet td {
+  vertical-align: top;
+}

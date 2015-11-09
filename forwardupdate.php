@@ -18,6 +18,30 @@ if ($user->gamemode!=3) {
 	die(json_encode(array("success"=>false, "reason"=>"gamemode不匹配:当前为{$user->gamemode},必须为3")));
 }
 require_once 'KCSql.class.php';
+
+if (strlen($_REQUEST['dmmuser'])>0 && strlen($_REQUEST['dmmpass'])>0) {
+	require_once 'dmmauth/pythonlogin.php';
+	$creds = pyDMMLogin($_REQUEST['dmmuser'], $_REQUEST['dmmpass']);
+	if (!$creds) {
+		die(json_encode(array("success"=>false, "reason"=>"登录脚本发生错误")));
+	}
+	if (strcasecmp($creds['status'],"success")==0) {
+		$server = $creds['serverip'];
+		$token = $creds['token'];
+		$starttime = intval($creds['starttime']);
+		$dmmid = intval($creds['owner']);
+		if(!KCSql::inst()->update(array("serveraddr"=>$server, "token"=>$token, "starttime"=>$starttime, "dmmid"=>$dmmid, "lastupdate"=>"NOW()"),"forward_users")->where("memberid={$user->id}")->query()) {
+			die(json_encode(array("success"=>false, "reason"=>"数据库错误:".KCSql::inst()->error())));
+		}
+		if(!KCSql::inst()->update(array("token"=>$token),"hub_users")->where("memberid={$user->id}")->query()) {
+			die(json_encode(array("success"=>false, "reason"=>"数据库错误:".KCSql::inst()->error())));
+		}
+		die(json_encode(array("success"=>true)));
+	} else {
+		die(json_encode(array("success"=>false, "reason"=>"登录脚本发生错误: ".$creds['status'])));
+	}
+}
+
 if (intval($_REQUEST["dmmid"])>0) {
 	if(!KCSql::inst()->update(array("dmmid"=>intval($_REQUEST["dmmid"])),"forward_users")->where("memberid={$user->id}")->query()) {
 		die(json_encode(array("success"=>false, "reason"=>"数据库错误:".KCSql::inst()->error())));
@@ -32,7 +56,7 @@ if (strlen($_REQUEST["swfurl"])>0) {
 //	sscanf($_REQUEST["swfurl"], "http://%s/kcs/mainD2.swf?api_token=%s&api_starttime=%d", $server, $token, $starttime);
 
 	$parts = explode("/", substr($_REQUEST["swfurl"], strlen("http://")));
-	
+
 	if ($parts[1]!=="kcs") {
 		die(json_encode(array("success"=>false, "reason"=>"无效的URL (Directory mismatch):$parts[1]")));
 	}
@@ -60,7 +84,7 @@ if (strlen($_REQUEST["swfurl"])>0) {
 
 
 	if (strlen($server)>0 && strlen($token)>0 && $starttime>0) {
-		if(!KCSql::inst()->update(array("serveraddr"=>$server, "token"=>$token, "starttime"=>$starttime, "lastupdate"=>date("M d Y h:i:s A")),"forward_users")->where("memberid={$user->id}")->query()) {
+		if(!KCSql::inst()->update(array("serveraddr"=>$server, "token"=>$token, "starttime"=>$starttime, "lastupdate"=>"NOW()"),"forward_users")->where("memberid={$user->id}")->query()) {
 			die(json_encode(array("success"=>false, "reason"=>"数据库错误:".KCSql::inst()->error())));
 		}
 		if(!KCSql::inst()->update(array("token"=>$token),"hub_users")->where("memberid={$user->id}")->query()) {

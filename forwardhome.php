@@ -9,137 +9,194 @@
 
 require_once "KCForwardUser.class.php";
 $f_user = new KCForwardUser($user);
+
+if (isset($_REQUEST['v']) && isset($f_user->token) && strlen($f_user->token)>0) {
+	switch ($_REQUEST['v']) {
+		case 'flash':
+			header("Location: /kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}");
+			break;
+		case 'table':
+			header("Location: /flashtable.php?token={$f_user->token}&starttime={$f_user->starttime}");
+			break;
+		case 'pages':
+			header("Location: /flashpages.php?token={$f_user->token}&starttime={$f_user->starttime}");
+			break;
+		case 'web':
+			header("Location: /flashcontainer.php?token={$f_user->token}&starttime={$f_user->starttime}");
+			break;
+	}
+	die();
+}
+
 ?>
-<div class="box" style="width:80%">
+
+<style type="text/css">
+	.startlinks a {
+		display: inline-block;
+		text-decoration: none;
+		background: none;
+		font-size: 1.5em;
+		padding: 0.5em;
+		margin: -0.5em;
+		border-radius: 0.2em;
+	}
+	.startlinks a:hover {
+		background: #E3F2FD;
+	}
+	a, a:visited {
+		color: blue;
+	}
+	table {
+		border: 1px solid #666;
+		border-collapse: collapse;
+	}
+	tr {
+		border:1px dashed #ccc;
+	}
+	td {
+		text-align: center;
+	}
+</style>
+
+
+
+<div class="box startlinks">
 	<h2>开始游戏</h2>
 
 	<?php
-		if (isset($f_user->token)) {
-			echo "<a href='/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}' style='font-size:1.5em'>打开游戏主Flash</a><br /><br />\n";
+		if (isset($f_user->token) && strlen($f_user->token)>0) {
+			echo "<a href='/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}'>以Flash运行游戏(全屏)</a><br /><br />\n";
+			echo "<a href='/flashcontainer.php?token={$f_user->token}&starttime={$f_user->starttime}'>以网页运行游戏(固定大小)</a><br /><br />\n";
+			echo "<a href='/flashtable.php?token={$f_user->token}&starttime={$f_user->starttime}'>以表格运行游戏(2x2)</a><br /><br />\n";
+			echo "<a href='/flashpages.php?token={$f_user->token}&starttime={$f_user->starttime}'>分页运行游戏</a><br /><br />\n";
+			echo "<a href='/flashviewer.php?token={$f_user->token}&starttime={$f_user->starttime}'>使用prophet运行(这玩意叫什么名字好呢...)</a><br /><br />\n";
+			echo "<a href='http://{$f_user->server}/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}' title='无法使用服务器专有功能'>直连API链接</a><br /><br />\n";
 			echo "<span>最近一次链接更新于:{$f_user->lastupdate}</span>";
 		} else {
-			echo "请按下面的指令操作, 获取swf链接.\n";
+			echo "请在下方[配置信息]处填写DMM登录凭据获取游戏链接 (建议开启HTTPS).\n";
 		}
 	?>
 </div>
 
-<div class="box" style="width:80%">
-	<h2>配置信息</h2>
+<script type="text/javascript">
+	<?php
+	if (array_key_exists("viewer", $_REQUEST)) {
+		echo "var viewer = true;";
+	} else {
+		echo "var viewer = false;";
+	}
+	?>
+	if (viewer) {
+		window.location.assign(<?php echo "'/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}'";?>);
+	}
+</script>
+
+<div class="box">
 	<script type="text/javascript">
-	function updateInfo() {
-		var dmmid = document.getElementById('dmmid').value;
-		var swfurl = document.getElementById('swfurl').value;
-
-		$.ajax({
-			url: "forwardupdate.php",
-			method: "POST",
-			data: {
-				token: user.token,
-				dmmid: dmmid,
-				swfurl: swfurl
-			},
-			dataType: "json",
-			failure: function() {
-				alert("与服务器通信失败");
-			},
-			success: function(data) {
-				if (data.success) {
-					alert("数据已更新,请刷新本页面或者重新登录舰队以更新链接.");
-				} else {
-					alert("请求被拒绝:"+data.reason);
-				}
-			}
-		});
-
+	function bmlink() {
+		alert("请右键链接复制地址或者拖拽至书签栏!");
+		return false;
 	}
 	</script>
-	<form onsubmit="updateInfo();return false;">
-		<span id="update_status">你只需要填写一项. 填过DmmID的就无需更新此表格.</span><br />
-		<input type="text" id="dmmid" placeholder="DMM ID" value="<?php
-		if (isset($f_user->dmmid)) {
-			echo $f_user->dmmid;
-		}?>"/><br />
-		<input type="text" id="swfurl" placeholder="Flash URL" value="<?php
-		if (isset($f_user->token)) {
-			echo "http://{$f_user->server}/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}";
-		}
-		?>"/><br />
-		<input type="submit" value="Update" />
-	</form>
-	<div>
-		<script type="text/javascript">
-			var explanRegions = {
-				activated: 0,
-				openView: function(id) {
-					if (this.activated == id) {
-						document.getElementById('exp_'+id).style.display = "none";
-						this.activated = 0;
-					} else {
-						document.getElementById('exp_'+this.activated).style.display = "none";
-						document.getElementById('exp_'+id).style.display = "block";
-						this.activated = id;
-					}
+	<h2>服务器工具</h2>
+	<strong>将以下地址书签或者设为viewer默认页可一键进入游戏</strong>
+	<ul style="font-family: monospace, 'Courier New';">
+		<li><a href="/v" onclick='return bmlink()'>kc.nfls.ga/v 全屏模式(Flash)</a></li>
+		<li><a href="/w" onclick='return bmlink()'>kc.nfls.ga/w 网页模式(DMM大小)</a></li>
+		<li><a href="/t" onclick='return bmlink()'>kc.nfls.ga/t 2x2表格</a></li>
+		<li><a href="/p" onclick='return bmlink()'>kc.nfls.ga/p 分页模式</a></li>
+	</ul>
+	<hr />
+	<a href="build-logs.php" class="button" target="_blank">开发建造日志</a>&nbsp;
+	<a href="ships.php" class="button" target="_blank">船只信息</a>&nbsp;
+	<a href="furniture/" class="button" target="_blank">家具信息</a>&nbsp;
+	<a href="furniture/bgm.php" class="button" target="_blank">母港BGM信息</a>&nbsp;
+	<a href="ban" class="button" target="_blank">投票封禁</a>&nbsp;
+	<a href="filemgr" class="button"  target="_blank">文件管理(mod上传)</a>&nbsp;
+	<br /><br />
+	<a href="viewer/certgen.php" class="button" target="_blank">生成Viewer授权证书</a>&nbsp;
+	<a href="viewer/prophet.php" class="button" target="_blank">Prophet</a>&nbsp;
+	<br /><br />
+	<input type="button" onclick="clearEntry()" value="清除入口缓存" />
+	<script type="text/javascript">
+	function clearEntry() {
+		if (confirm("此操作会清除start2缓存, 下次加载将会较慢.\n你确定要清除吗?")) {
+			$.ajax({
+				url: "/servercmd.php/clearentry",
+				method: "GET",
+				success: function(data) {
+					alert(data);
+				},
+				error: function() {
+					alert("与服务器通信失败");
 				}
-			}
-		</script>
-		<input type="button" value="如何配置" onclick="explanRegions.openView(1)" />
-		<input type="button" value="获取swf链接" onclick="explanRegions.openView(2)" />
-		<input type="button" value="获取DMM ID" onclick="explanRegions.openView(3)" />
-	</div>
-	<div id="exp_0"><!-- Prevent javascript interruption by unknown id exp_0 --></div>
-	<div id="exp_1" style="display:none">
-		<h3>如何配置</h3>
-		我们需要获得关于你游戏的相关信息才能正确将你的请求发送至指定服务器. 你可以:
-		<ol>
-			<li>手动获取swf链接,并将其填入下方[Flash链接]一栏中</li>
-			<li>填入你的DMM ID, 由服务器自动抓取</li>
-		</ol>
-		具体的获取方法请见下面<br />
-		<br />
-	</div>
-	<div id="exp_2" style="display:none">
-		<h3>获取swf链接</h3>
-		<hr />
-		你可以通过提供指向游戏入口的Flash链接提供该数据. 但请注意每次你通过dmm重登录或通过第三方登录工具登录后, 你的swf链接会更新, 原有的swf链接会失效, 你必须每次重新获取链接并填入下方.<br /><br />
-		要获取swf链接:
-		<ol>
-			<li>在游戏页面右键,选择[审查元素]</li>
-			<li>在审查元素界面进行搜索, 你可以通过按Ctrl-F或Cmd-F调出搜索框</li>
-			<li>搜索mainD2.swf</li>
-			<li>将匹配处的完整链接复制出来</li>
-		</ol>
-		链接的格式应为<code>http://(域名/IP)/kcs/mainD2.swf?api_token=(40位16进制数)&api_token=(一较大整数)</code>,当你将这个链接直接在浏览器中打开时, 你应该能直接看到游戏全屏运行<br />
-		<br />
-	</div>
-	<div id="exp_3" style="display:none">
-		<h3>获取DMM ID</h3>
-		我们推荐使用DmmID动态地抓取链接, 只要你通过osapi链接访问, 我们就一直会存储着您的最新的有效的游戏链接.(注意使用舰队司令部加速将会不通过osapi刷新链接,此时您必须重新登录)<br />
-		要获取DmmID, 请打开DMM中的舰队页面, 在地址栏中输入<code>javascript:prompt("Your DMM ID is",gadgetInfo.OWNER_ID);</code>
-		<br />
-		另外, 要使我们能正确处理到你经过osapi的请求, 您必须将<code>osapi.dmm.com</code>的域名解析指向我们的服务器,要这样,请打开您的<code>hosts</code>文件, 并在末尾添加如下一行:<br />
-		<code>
-		223.223.218.205 osapi.dmm.com
-		</code><br />
-		Hosts文件一般存储在这里 (您可能需要修改文件安全权限或成为root以修改文件,若仍有问题请搜索"修改hosts"):
-		<ul>
-			<li>Windows: <code>C:\Windows\System32\drivers\etc\hosts</code></li>
-			<li>MacOS/Linux: <code>/etc/hosts</code></li>
-			<li>Android: <code>/system/etc/hosts</code></li>
-			<li>iOS: 反正你不能放Flash, 若你能跑Flash那你肯定也能改hosts :XD</li>
-		</ul>
-		如果你曾经修改过<code>osapi.dmm.com</code>的hosts记录, 请覆写.<Br />
-		<Br />
-		请使用以下方式登录舰队,这样我们就可以获取您的链接了
-		<ul>
-			<li>通过DMM官方登录:<a href="http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/">艦これ</a></li>
-			<li>通过舰娘登陆器(推荐,无地区限制): <a href="https://kancolle.tv/connector1/">入口一</a> | <a href="https://kancolle.tv/connector2/">入口二</a></li>
-		</ul>
-		获取后, 你就可以直接通过访问本站点, 点击页面上方链接直接开始游戏了
-	</div>
-
+			});
+		}
+	}
+	</script>
 </div>
 
-<div class="box" style="width:80%">
+<div class="box">
+<?php
+$gamedb = json_decode(file_get_contents("kcapi/gamedb.json"),true);
+
+?>
+	<h2>开发建造状态</h2>
+	<table style="width:100%;">
+		<tr>
+			<th>建造</th>
+			<th>油</th>
+			<th>弹</th>
+			<th>钢</th>
+			<th>铝</th>
+			<th>资材</th>
+			<th>出货</th>
+		</tr>
+	<?php
+	$logs = KCSql::inst()->querySql("SELECT * FROM kc_build_logs WHERE user='{$f_user->dmmid}' AND type='CONSTR' ORDER BY date DESC LIMIT 5");
+	foreach ($logs as $entry) {
+		echo "<tr>\n";
+		echo "<td>{$entry["date"]}</td>\n";
+		echo "<td>{$entry["fuel"]}</td>\n";
+		echo "<td>{$entry["ammo"]}</td>\n";
+		echo "<td>{$entry["steel"]}</td>\n";
+		echo "<td>{$entry["baux"]}</td>\n";
+		echo "<td>{$entry["seaweed"]}</td>\n";
+		echo "<td>{$gamedb["ships"][$entry["product"]]["api_name"]}</td>\n";
+		echo "</tr>\n";
+	}
+	?>
+	</table>
+	<br />
+	<table style="width:100%;">
+		<tr>
+			<th>开发</th>
+			<th>油</th>
+			<th>弹</th>
+			<th>钢</th>
+			<th>铝</th>
+			<th>出货</th>
+		</tr>
+	<?php
+	$logs = KCSql::inst()->querySql("SELECT * FROM kc_build_logs WHERE user='{$f_user->dmmid}' AND type='DEV' ORDER BY date DESC LIMIT 5");
+	foreach ($logs as $entry) {
+		echo "<tr>\n";
+		echo "<td>{$entry["date"]}</td>\n";
+		echo "<td>{$entry["fuel"]}</td>\n";
+		echo "<td>{$entry["ammo"]}</td>\n";
+		echo "<td>{$entry["steel"]}</td>\n";
+		echo "<td>{$entry["baux"]}</td>\n";
+		echo "<td>{$gamedb["equipments"][$entry["product"]]["api_name"]}</td>\n";
+		echo "</tr>\n";
+	}
+	?>
+	</table>
+	<hr />
+</div>
+
+
+
+<div class="box">
 	<h2>翻译器</h2>
 	替换服务器发回数据中的字符串,改变游戏动画的文字显示.(注意有些字符游戏无法显示,如部分简体中文,你可以通过游戏中的舰队名文本框进行测试)
 	<table id="kcaccess" style="width:100%">
@@ -201,26 +258,83 @@ $f_user = new KCForwardUser($user);
 				},
 				success: function(data) {
 					if (data.success) {
-						alert("数据已更新.\n空白项已被删除.");
+						alert("替换规则已更新.\n空白行已删除");
+						window.location.assign(window.location.href);
 					} else {
 						alert("请求错误:"+data.reason);
 					}
 				}
 			});
-		}
+		},
 	};
 	</script>
-	<input type="button" onclick="KCAccess.addRow()" value="Add Row" />
+	<input type="button" onclick="KCAccess.addRow()" value="添加一行" />
 	<hr/>
-	<input type="button" onclick="KCAccess.submitKCAccess()" value="Update" />
+	<input type="button" onclick="KCAccess.submitKCAccess()" value="更新" />
 </div>
 
-<div class="box" style="width:80%">
+<div class="box">
+	<h2>配置信息</h2>
+	<script type="text/javascript">
+	function updateInfo() {
+		document.getElementById('loginsubmit').disabled = true;
+		var dmmid = document.getElementById('dmmid').value;
+		var swfurl = document.getElementById('swfurl').value;
+		var dmmuser = document.getElementById('dmmuser').value;
+		var dmmpass = document.getElementById('dmmpass').value;
+		$.ajax({
+			url: "forwardupdate.php",
+			method: "POST",
+			data: {
+				token: user.token,
+//				dmmid: dmmid,
+//				swfurl: swfurl,
+				dmmuser: dmmuser,
+				dmmpass: dmmpass
+			},
+			dataType: "json",
+			error: function() {
+				document.getElementById('loginsubmit').disabled = false;
+				alert("与服务器通信失败");
+			},
+			success: function(data) {
+				if (data.success) {
+					alert("游戏链接已更新");
+					window.location.assign(window.location.href);
+				} else {
+					document.getElementById('loginsubmit').disabled = false;
+					alert("请求被拒绝:"+data.reason);
+				}
+			}
+		});
+
+	}
+	</script>
+	<form onsubmit="updateInfo();return false;">
+		<span id="update_status">服务器不会保存DMM登录信息, 建议通过HTTPS登录</span><br />
+		<input type="text" id="dmmuser" placeholder="DMM用户名(Email)" /><br />
+		<input type="password" id="dmmpass" placeholder="DMM登录密码" /><br />
+		<div style="display:none">
+			<input type="text" id="dmmid" placeholder="DMM ID" value="<?php
+			if (isset($f_user->dmmid)) {
+				echo $f_user->dmmid;
+			}?>"/><br />
+			<input type="text" id="swfurl" placeholder="Flash URL" value="<?php
+			if (isset($f_user->token)) {
+				echo "http://{$f_user->server}/kcs/mainD2.swf?api_token={$f_user->token}&api_starttime={$f_user->starttime}";
+			}
+			?>"/><br />
+		</div>
+		<input type="submit" value="更新链接" />
+	</form>
+</div>
+
+
+<div class="box">
 	<h2>发包器</h2>
 	<p>
 		用于战斗过程猫紧急补发. 请注意战斗开始和获取战斗结果间应至少暂停30秒以上(越长越好), 否则你有可能被识别为BOT.
 	</p>
-	<h3>参考</h3>
 		<div>
 		<script type="text/javascript">
 			var requestRegions = {
@@ -280,6 +394,19 @@ $f_user = new KCForwardUser($user);
 						api_recovery_type:0
 					});
 				},
+				requestCombined: function() {
+					this.request("/kcsapi/api_req_hensei/combined", {
+						api_token:user.token,
+						api_verno: 1,
+						api_combined_type: parseInt(document.getElementById('req_combined_action').value)
+					});
+				},
+				requestTouchStart2: function() {
+					this.request("/kcsapi/api_start2", {
+						api_token:user.token,
+						api_verno: 1
+					});
+				},
 				requestCustom: function() {
 					this.request(document.getElementById('req_custom_uri').value, JSON.parse(document.getElementById('req_custom_post').value));
 				}
@@ -289,7 +416,9 @@ $f_user = new KCForwardUser($user);
 		<input type="button" value="开始战斗(夜战)" onclick="requestRegions.openView(2)" />
 		<input type="button" value="获取战斗结果" onclick="requestRegions.openView(3)" />
 		<input type="button" value="进击" onclick="requestRegions.openView(4)" />
-		<input type="button" value="自定义" onclick="requestRegions.openView(5)" />
+		<input type="button" value="联合编队" onclick="requestRegions.openView(5)" />
+		<input type="button" value="Touch Start2" onclick="requestRegions.openView(7)" />
+		<input type="button" value="自定义" onclick="requestRegions.openView(6)" />
 	</div>
 	<div id="req_0"><!-- Prevent javascript interruption by unknown id exp_0 --></div>
 	<div id="req_1" style="display:none">
@@ -310,85 +439,30 @@ $f_user = new KCForwardUser($user);
 		<input type="button" onclick="requestRegions.requestNext()" value="发送" />
 	</div>
 	<div id="req_5" style="display:none">
+		<h3>联合编队</h3>
+		<select id="req_combined_action" selected="0">
+			<option value="0">解除联合编队</option>
+			<option value="1">编成机动部队</option>
+			<option value="2">编成水上部队</option>
+		</select>
+		<input type="button" onclick="requestRegions.requestCombined()" value="发送" />
+	</div>
+	<div id="req_7" style="display:none">
+		<h3>Touch start2</h3>
+		<input type="button" onclick="requestRegions.requestTouchStart2()" value="发送" />
+	</div>
+	<div id="req_6" style="display:none">
 		<h3>自定义</h3>
 		<strong>警告:慎用!</strong><br />
-		URI:<input type="text" id="req_custom_uri" value="/kcsapi/" /><br />
+		URI:<input type="text" id="req_custom_uri" value="/kcsapi/" style="width:75%"/><br />
 		Args: (json)<br />
-		<textarea id="req_custom_post" style="font-family:monospace"></textarea>
+		<textarea id="req_custom_post" style="font-family:monospace;width:100%">
+{
+"api_token": "<?php echo $f_user->token;?>",
+"api_verno": 1
+}</textarea>
+		<br />
 		<input type="button" onclick="requestRegions.requestCustom()" value="发送" />
 	</div>
-	<p id="req_result" style="font-family:monospace"></p>
-
-</div>
-
-<style type="text/css">
-table {
-	border: 1px solid #666;
-	border-collapse: collapse;
-}
-tr {
-	border:1px dashed #ccc;
-}
-td {
-	text-align: center;
-}
-</style>
-
-<div class="box" style="width:80%">
-<?php
-$gamedb = json_decode(file_get_contents("kcapi/gamedb.json"),true);
-
-?>
-	<h2>日志</h2>
-	<table style="width:100%;">
-		<tr>
-			<th>建造</th>
-			<th>油</th>
-			<th>弹</th>
-			<th>钢</th>
-			<th>铝</th>
-			<th>资材</th>
-			<th>出货</th>
-		</tr>
-	<?php
-	$logs = KCSql::inst()->querySql("SELECT * FROM kc_build_logs WHERE user='{$f_user->dmmid}' AND type='CONSTR' ORDER BY date DESC LIMIT 5");
-	foreach ($logs as $entry) {
-		echo "<tr>\n";
-		echo "<td>{$entry["date"]}</td>\n";
-		echo "<td>{$entry["fuel"]}</td>\n";
-		echo "<td>{$entry["ammo"]}</td>\n";
-		echo "<td>{$entry["steel"]}</td>\n";
-		echo "<td>{$entry["baux"]}</td>\n";
-		echo "<td>{$entry["seaweed"]}</td>\n";
-		echo "<td>{$gamedb["ships"][$entry["product"]]["api_name"]}</td>\n";
-		echo "</tr>\n";
-	}
-	?>
-	</table>
-	<br />
-	<table style="width:100%;">
-		<tr>
-			<th>开发</th>
-			<th>油</th>
-			<th>弹</th>
-			<th>钢</th>
-			<th>铝</th>
-			<th>出货</th>
-		</tr>
-	<?php
-	$logs = KCSql::inst()->querySql("SELECT * FROM kc_build_logs WHERE user='{$f_user->dmmid}' AND type='DEV' ORDER BY date DESC LIMIT 5");
-	foreach ($logs as $entry) {
-		echo "<tr>\n";
-		echo "<td>{$entry["date"]}</td>\n";
-		echo "<td>{$entry["fuel"]}</td>\n";
-		echo "<td>{$entry["ammo"]}</td>\n";
-		echo "<td>{$entry["steel"]}</td>\n";
-		echo "<td>{$entry["baux"]}</td>\n";
-		echo "<td>{$gamedb["equipments"][$entry["product"]]["api_name"]}</td>\n";
-		echo "</tr>\n";
-	}
-	?>
-	</table>
-	<hr />
-	<a href="/build-logs.php">More</a>
+	<div id="req_result"></div>
 </div>

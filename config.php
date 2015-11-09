@@ -18,5 +18,5 @@ $config["mysql_db"]=		"kancolle";
 $config["mysql_prefix"]=	"kc";
 
 // Public server address for the current server
-$config["serveraddr"]=		"kancolle.dev";
+$config["serveraddr"]=		"localhost";
 

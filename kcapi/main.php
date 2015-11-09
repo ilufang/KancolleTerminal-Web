@@ -9,5 +9,7 @@
 
 require_once "KCRequest.class.php";
 
-$req = new KCRequest($_SERVER["REQUEST_URI"], file_get_contents("php://input"), getallheaders());
+date_default_timezone_set('Asia/Shanghai');
+
+$req = new KCRequest($_SERVER["REQUEST_URI"], $_REQUEST, getallheaders());
 $req->printResponse();

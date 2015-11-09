@@ -1,8 +1,8 @@
 <?php
 /**
- *	editkcaccess
+ *	editrespacks
  *
- *	Update user's kcaccess translator settings
+ *	Update user's resource packs
  *	Ajax responder
  *
  *	2015 by ilufang
@@ -20,7 +20,7 @@ if ($user->gamemode!=3) {
 
 require_once 'KCSql.class.php';
 
-if(!KCSql::inst()->update(array("kcaccess"=>$_REQUEST["kcaccess"]),"forward_users")->where("memberid={$user->id}")->query()) {
+if(!KCSql::inst()->update(array("respacks"=>utf8_encode($_REQUEST["respacks"])),"forward_users")->where("memberid={$user->id}")->query()) {
 	die(json_encode(array("success"=>false, "reason"=>"数据库错误:".KCSql::inst()->error())));
 }
 
