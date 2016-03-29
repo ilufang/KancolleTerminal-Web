@@ -1,0 +1,19 @@
+poi-main {
+  display: flex;
+  flex-flow: row nowrap;
+}
+kan-game {
+  flex: 5 0px;
+}
+poi-app {
+  flex: 2 0px;
+}
+.double-tabbed kan-game {
+  flex: 4 0px;
+}
+.double-tabbed poi-app {
+  flex: 3 0px;
+}
+hr {
+  display: none;
+}

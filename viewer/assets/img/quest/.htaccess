@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteRule 8.png		2.png	[NC,NS,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule (\d+).png	0.png	[NC,NS,L]
+
+</IfModule>

@@ -71,7 +71,7 @@
 			<div class='code'><?php echo base64_encode(json_encode($cert_plain));?></div>
 			或者复制链接(右键复制链接地址):
 			<ul>
-				<li><a href='prophet.php?cert=<?php echo base64_encode(json_encode($cert_plain));?>'>prophet</a></li>
+				<li><a href='./?cert=<?php echo base64_encode(json_encode($cert_plain));?>'>prophet</a></li>
 			</ul>
 			<?php
 		}

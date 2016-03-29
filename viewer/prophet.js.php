@@ -1,24 +1,18 @@
 <?php
 header("Content-Type: application/javascript; charset=utf-8");
+require_once 'agectrl.php';
+tryModified("i18n_prophet.json");
 ?>
 
 var $, $$, APPDATA_PATH, Alert, Button, Col, Grid, Input, ProgressBar, Promise, ROOT, React, ReactBootstrap, SERVER_HOSTNAME, Table, _, __, airsuprem, async, attackMeth, battledetails, combinedFleetName, combinedMaxHp, combinedName, combinedOpenAttack, combinedRaigekiAttack, combinedStatus, combinedhougekiAttack, db, delayedError, displayError, dropCount, e, enemyEquips, enemyInformation, enemyName, enemyName_buf, enemyPath, error, formation, formationFlag, fs, getCombinedInfo, getCondStyle, getDamage, getEquipName, getHp, getHpClass, getHpStyle, getInfo, getMapEnemy, getResult, getTyku, hougekiAttack, i18n, intercept, join, jsonContent, jsonId, koukuAttack, koukuAttackCombinedPart, layout, maxHp, openAttack, path, raigekiAttack, ref, relative, request, resolveTime, shipName, sortiedFleet, sortiedFleet_buf, supportAttack, sync, tempMsg, toggleModal, updateJson;
 
 _ = window._, $$ = window.$$, React = window.React, ReactBootstrap = window.ReactBootstrap, ROOT = window.ROOT, resolveTime = window.resolveTime, layout = window.layout, toggleModal = window.toggleModal;
 
-Table = ReactBootstrap.Table, ProgressBar = ReactBootstrap.ProgressBar, Grid = ReactBootstrap.Grid, Input = ReactBootstrap.Input, Col = ReactBootstrap.Col, Alert = ReactBootstrap.Alert, Button = ReactBootstrap.Button;
+var Table = ReactBootstrap.Table, ProgressBar = ReactBootstrap.ProgressBar, Grid = ReactBootstrap.Grid, Input = ReactBootstrap.Input, Col = ReactBootstrap.Col, Alert = ReactBootstrap.Alert, Button = ReactBootstrap.Button;
 
-var transdb = <?php
-	echo file_get_contents("zh-cn.json");
-?>;
-
-__ = function(str) {
-	if (transdb[str]) {
-		return transdb[str];
-	} else {
-		return str;
-	}
-}
+Object.assign(i18nDB, <?php
+	echo file_get_contents("i18n_prophet.json");
+?>);
 
 var cloneObj = function(obj) {
 	if (null == obj || "object" != typeof obj) return obj;
@@ -1456,11 +1450,10 @@ var Prophet = {
 		render: function() {
 			var i, j, list, tmpName;
 
-			//if (layout === 'horizonal' || window.doubleTabbed) {
-			if (true) {
+			if (layout === 'horizontal') {
 				return React.createElement("div", null, React.createElement("link", {
 					"rel": "stylesheet",
-					"href": "prophet.css"
+					"href": "assets/css/prophet.css"
 				}), React.createElement(Alert, null, (this.state.combinedFlag === 0 ? React.createElement(Grid, null, React.createElement(Col, {
 					"xs": 6.
 				}, this.state.sortiedFleet), React.createElement(Col, {
@@ -1555,7 +1548,7 @@ var Prophet = {
 			} else {
 				return React.createElement("div", null, React.createElement("link", {
 					"rel": "stylesheet",
-					"href": 'prophet.css'
+					"href": 'assets/css/prophet.css'
 				}), React.createElement(Alert, null, (this.state.combinedFlag === 0 ? React.createElement(Grid, null, React.createElement(Col, {
 					"xs": 3.
 				}, this.state.sortiedFleet), React.createElement(Col, {

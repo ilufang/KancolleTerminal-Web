@@ -1,0 +1,251 @@
+#MainView {
+  font-size: 12px;
+  min-width: 250px;
+}
+#MainView .nav {
+  margin-top: -6px;
+  margin-bottom: 5px;
+}
+#MainView .nav > li {
+  overflow: inherit;
+}
+#MainView .panel {
+  margin: 3px;
+}
+#MainView .panel-container,
+#MainView .panel-col {
+  display: flex;
+  flex-flow: column;
+}
+#MainView .panel-row {
+  display: flex;
+  flex-flow: row;
+}
+#MainView .half {
+  width: 50%;
+}
+#MainView .flex {
+  flex: 1;
+}
+#MainView .panel-body {
+  /*padding: 8px;*/
+  width: 100%;
+}
+/*universal*/
+#MainView .bottom-area {
+  height: calc(100% - 39px);
+}
+#MainView .teitoku-panel-area {
+  height: 39px;
+}
+/*horizontal*/
+#MainView .main-area-horizontal {
+  height: 467px;
+  overflow: hidden;
+}
+#MainView .bottom-right-area,
+#MainView .bottom-left-area {
+  height: 100%;
+}
+#MainView .miniship-area-horizontal {
+  height: calc(100% - 97px);
+  min-height: 328px;
+}
+#MainView .resource-panel-area-horizontal,
+#MainView .mission-panel-area-horizontal {
+  height: 97px;
+}
+#MainView .combined-panels-area-horizontal {
+  height: 150px;
+}
+#MainView .task-panel-area-horizontal {
+  height: calc(100% - 255px);
+  min-height: 172px;
+}
+/*vertical*/
+#MainView .main-area-vertical {
+  height: 328px;
+}
+#MainView .main-area-vertical .resource-panel .panel-body,
+#MainView .main-area-vertical .combined-panels .panel-body,
+#MainView .main-area-vertical .mission-panel .panel-body {
+  margin-top: 8px;
+}
+#MainView .left-area,
+#MainView .right-bottom-area,
+#MainView .left-bottom-area {
+  height: 100%
+}
+#MainView .resource-panel-area-vertical,
+#MainView .mission-panel-area-vertical {
+  height: 40%;
+}
+#MainView .combined-panels-area-vertical,
+#MainView .task-panel-area-vertical {
+  height: 60%;
+}
+#MainView .miniship-area-vertical {
+  height: 100%;
+}
+/*panels*/
+#MainView .ndock-panel,
+#MainView .kdock-panel,
+#MainView .mission-panel,
+#MainView .task-panel,
+#MainView .teitoku-panel,
+#MainView .resource-panel {
+  white-space: nowrap;
+  overflow: hidden;
+}
+#MainView .mission-panel .panel,
+#MainView .task-panel .panel,
+#MainView .resource-panel .panel {
+  height: calc(100% - 6px)
+}
+#MainView .panel-item {
+  padding: 4px;
+}
+#MainView .task-panel.panel-body {
+  /*border: 1px solid orange;*/
+  display: flex;
+  flex-flow: column nowrap;
+}
+#MainView .task-panel table tr td {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+#MainView .task-panel .label {
+  min-width: 50px;
+}
+#MainView .task-item {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+#MainView .task-item .quest-name {
+  flex: 1;
+  padding-right: 10px;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#MainView .task-item .quest-progress {
+  min-width: 50px;
+  flex: none;
+}
+#MainView .task-item .cat-indicator {
+  display: inline-block;
+  height: 1em;
+  width: 4px;
+  vertical-align: middle;
+  margin-right: 4px;
+  flex: none;
+}
+#MainView .mission-panel .panel-body {
+  /*border: 1px solid orange;*/
+  display: flex;
+  flex-flow: column nowrap;
+}
+#MainView .mission-item {
+  display: flex;
+  flex: 1;
+}
+#MainView .mission-item .mission-name {
+  flex: 1;
+  padding-right: 10px;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#MainView .mission-item .mission-timer {
+  flex: none;
+}
+#MainView .ndock-panel .panel-body {
+  /*border: 1px solid skyblue;*/
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+#MainView .ndock-item {
+  display: flex;
+  flex: 1;
+  /*margin: 3px;*/
+}
+#MainView .ndock-item .ndock-name {
+  flex: 1;
+  padding-right: 10px;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#MainView .ndock-item .ndock-timer {
+  flex: none;
+}
+#MainView .kdock-panel .panel-body {
+  /*border: 1px solid orange;*/
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+#MainView .kdock-item {
+  display: flex;
+  flex: 1;
+}
+#MainView .kdock-item .kdock-name {
+  flex: 1;
+  padding-right: 10px;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#MainView .kdock-item .kdock-timer {
+  /*display: flex;*/
+  flex: none;
+  /*margin: 3px;*/
+}
+#MainView .resource-panel .panel-body {
+  /*border: 1px solid orange;*/
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+#MainView .resource-panel .material-value {
+  margin-left: 5px;
+}
+#MainView .resource-panel img {
+  width: 18px;
+  height: 18px;
+}
+#MainView .label {
+  font-size: 90%;
+  font-weight: normal;
+  padding-top: .2em;
+  padding-bottom: .2em;
+}
+#MainView .panel-body table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: none;
+  line-height: 1.42857143;
+}
+#MainView table tr td {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 5px;
+}
+#MainView .panel-body {
+  padding: 8px;
+}
+#MainView .panel-heading {
+  padding: 8px;
+}
+#MainView .grow {
+  -webkit-filter: drop-shadow(0px 0px 4px #2196F3)
+}

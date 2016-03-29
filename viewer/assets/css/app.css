@@ -1,0 +1,184 @@
+@import url("/css/googleapis/ubuntu.css");
+
+*, body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: "Ubuntu", "Helvetica Neue", "Helvetica", "Arial", "Heiti SC", "WenQuanYi Micro Hei", "Microsoft YaHei", "Droid Sans Fallback", sans-serif;
+}
+::-webkit-scrollbar {
+  width: 0px;
+}
+body {
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.42857143;
+  /*overflow: hidden;*/
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+.alert {
+  border-radius: 0px;
+  font-size: 12px;
+  margin-bottom: 1px;
+  padding: 3px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tab-content {
+  overflow: auto;
+}
+#poi-app-container {
+  overflow: hidden;
+}
+.panel {
+  background-color: rgba(41,41,41,0.8);
+}
+
+kan-game poi-info .alert {
+  opacity: 0.7;
+  padding: 6px 3px 5px 3px;
+  margin-bottom: 0px;
+  height: 100%;
+}
+kan-game poi-map-reminder .alert {
+  width: 120px;
+}
+span, img, .panel-heading, .table tbody tr td {
+  cursor: default;
+}
+a, button {
+  cursor: pointer;
+}
+hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+/*#modules {
+  position: static;
+}
+*/
+#modules .container {
+  padding-left: 0px;
+  padding-right: 0px;
+  width: auto;
+  overflow-x: hidden;
+}
+table {
+  table-layout: fixed;
+}
+#modules nav ul {
+  display: flex;
+}
+#modules nav ul li {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#modules nav ul li a {
+  text-align: center;
+}
+#modules nav ul.dropdown-menu {
+  min-width: 100%;
+}
+#modules nav li.dropdown {
+  overflow: inherit;
+}
+poi-info {
+  display: flex;
+  align-items: stretch;
+}
+poi-alert {
+  flex: 1;
+}
+poi-control {
+  height: 100%;
+}
+poi-control .btn-sm {
+  border-radius: 0px;
+  border-width: 2px;
+  padding: 2px 7px;
+  font-size: 15px;
+}
+poi-control button .fa {
+  cursor: pointer !important;
+  width: 20px;
+}
+.table tbody tr td {
+  padding: 8px;
+}
+.btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus {
+  outline: none !important;
+}
+.poi-tabs-container {
+  display: flex;
+}
+.poi-tabs-container > div {
+  flex: 1;
+}
+
+.poi-ship-cond-0.dark {  /* cond 0~19  */
+  color: #DD514C;
+  font-weight: bold;
+}
+.poi-ship-cond-20.dark { /* cond 20~29 */
+  color: #F37B1D;
+}
+.poi-ship-cond-30.dark { /* cond 30~39 */
+  color: #FFC880;
+}
+.poi-ship-cond-40.dark { /* cond 40~48 */
+
+}
+.poi-ship-cond-49.dark { /* cond 49 */
+
+}
+.poi-ship-cond-50.dark { /* cond 50~52 */
+  color: #FFEE00
+}
+.poi-ship-cond-53.dark { /* cond 53~100 */
+  color: #FFFF40;
+  font-weight: bold;
+}
+
+.poi-ship-cond-0.light {  /* cond 0~19  */
+  text-shadow: 0 0 3px #DD514C;
+  font-weight: bold;
+}
+.poi-ship-cond-20.light { /* cond 20~29 */
+  text-shadow: 0 0 3px #F37B1D;
+}
+.poi-ship-cond-30.light { /* cond 30~39 */
+  text-shadow: 0 0 3px #FFC880;
+}
+.poi-ship-cond-40.light { /* cond 40~48 */
+
+}
+.poi-ship-cond-49.light { /* cond 49 */
+
+}
+.poi-ship-cond-50.light { /* cond 50~52 */
+  text-shadow: 0 0 3px #FFEE00;
+}
+.poi-ship-cond-53.light { /* cond 53~100 */
+  text-shadow: 0 0 3px #FFFF00;
+  font-weight: bold;
+}
+.alert-position {
+  margin-left: auto;
+  margin-right: auto;
+}
+.overflow-anim {
+  animation-name: overflowscroll;
+  animation-duration: 10s;
+  animation-delay: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  margin-left: 0%;
+}
+@keyframes overflowscroll {
+    0% {margin-left: 0%;}
+    100% {margin-left: -100%;}
+}
+a:focus {
+  outline: none;
+}

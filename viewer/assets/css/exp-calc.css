@@ -1,0 +1,25 @@
+#ExpCalcView label {
+  font-size: 13px;
+}
+#ExpCalcView .hidden {
+  display: none;
+}
+#ExpCalcView .show {
+  display: block;
+}
+#ExpCalcView table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#ExpCalcView table tr td {
+  padding-left: 5px;
+  font-size: 100%;
+}
+#ExpCalcView table {
+  font-size: 100%;
+  text-align: center;
+}
+#ExpCalcView {
+  padding-top: 15px;
+}

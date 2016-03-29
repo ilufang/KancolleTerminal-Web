@@ -1,0 +1,249 @@
+<!-- Quest simulator -->
+<div class="alert alert-warning" onclick="this.remove()">
+本功能需要发送请求, 行为与游戏内正常请求相似, 请斟酌使用
+</div>
+
+<div class="btn-group" id="quest_pagebtns" style="width: 100%">
+	<button class="btn btn-primary" onclick="Quests.openpage(1)" id="Quests_page1">1</button>
+	<button class="btn" onclick="Quests.openpage(2)" id="Quests_page2" disabled>2</button>
+	<button class="btn" onclick="Quests.openpage(3)" id="Quests_page3" disabled>3</button>
+	<button class="btn" onclick="Quests.openpage(4)" id="Quests_page4" disabled>4</button>
+	<button class="btn" onclick="Quests.openpage(5)" id="Quests_page5" disabled>5</button>
+	<button class="btn" onclick="Quests.openpage(6)" id="Quests_page6" disabled>6</button>
+	<button class="btn" onclick="Quests.openpage(7)" id="Quests_page7" disabled>7</button>
+	<button class="btn" onclick="Quests.openpage(8)" id="Quests_page8" disabled>8</button>
+	<button class="btn" onclick="Quests.openpage(9)" id="Quests_page9" disabled>9</button>
+	<button class="btn btn-warning" onclick="Quests.loadAll()" style="width: 19%" title="警告: 本功能涉及高频请求">请求全部</button>
+</div>
+
+<!-- Quest list -->
+<table id="quest_list" class="table table-striped table-condensed table-hover">
+	<thead>
+		<tr>
+			<th style="width: 55px"><!-- Type --></th>
+			<th><!-- Content --></th>
+			<th style="width: 5em"><!-- Status --></th>
+		</tr>
+	</thead>
+	<tbody><!-- To be filled --></tbody>
+</table>
+
+<style type="text/css">
+#quest_pagebtns button {
+	width: 9%;
+}
+#quest_list tbody tr td {
+	vertical-align: middle;
+}
+.queststatus_1 {
+	text-align: center;
+}
+.queststatus_2 {
+	text-align: center;
+	background: rgba(255, 166, 77, 0.33);
+}
+.queststatus_3 {
+	text-align: center;
+	background: rgba(77, 255, 255, 0.33);
+}
+</style>
+<script type="text/javascript">
+var Quests = {
+	pageCount: 1,
+	currentPage: 1,
+	openpage: function(page) {
+		if (page > Quests.pageCount) {
+			// Invalid page, just return
+			return;
+		}
+		document.querySelector("#Quests_page"+Quests.currentPage).className = "btn btn-primary";
+		document.querySelector("#Quests_page"+page).className = "btn btn-success";
+		Quests.currentPage = page;
+		Quests.loadPage(page);
+	},
+	loadAll: function() {
+		document.querySelector("#Quests_page"+Quests.currentPage).className = "btn btn-primary";
+		document.querySelector("#Quests_page1").className = "btn btn-success";
+		Quests.currentPage = 1;
+		$.ajax({
+			url: "prophet-fetch.php",
+			method: "POST",
+			data: {
+				user: user,
+				action: "quest"
+			},
+			dataType: "json",
+			error: function(e) {
+				connected=false;
+				displayError("任务: 网络连接失败");
+			},
+			success: function(data) {
+				if (data.status==200) {
+					poi.resolve(data);
+					// Afterwards data is dispatched and caught by handleResponse as poi finished processing it
+				} else {
+					displayError("任务: 请求失败 ("+data.status+")");
+				}
+			}
+		})
+	},
+	loadPage: function(page) {
+		$.ajax({
+			url: "prophet-fetch.php",
+			method: "POST",
+			data: {
+				user: user,
+				action: "quest",
+				quest_page: page
+			},
+			dataType: "json",
+			error: function(e) {
+				connected=false;
+				displayError("任务: 网络连接失败");
+			},
+			success: function(data) {
+				if (data.status==200) {
+					poi.resolve(data);
+					// Afterwards data is dispatched and caught by handleResponse as poi finished processing it
+				} else {
+					displayError("任务: 请求失败 ("+data.status+")");
+				}
+			}
+		})
+	},
+	inflateQuests: function(questlist) {
+		var questTypes = ["", "单次", "日常", "周常", "4", "5", "月常"];
+		var questCategories = ["", "编成", "出击", "演习", "远征", "整备", "工厂", "改装"];
+		var questState = ["", "", "进行中", "已完成"];
+		var questProgress = ["", "(50%)", "(80%)"];
+		document.querySelector("#quest_list tbody").innerHTML = "";
+		for (var idx in questlist) {
+			var quest = questlist[idx];
+			if (!quest.api_no) {
+				continue;
+			}
+			var questbox = document.createElement("tr");
+			questbox.setAttribute("onclick", "Quests.toggleQuest("+quest.api_no+","+quest.api_state+")");
+			questbox.setAttribute("id", "questcell_"+quest.api_no);
+
+			var questType = document.createElement("td");
+			var questIcon = document.createElement("img");
+			questIcon.src="assets/img/quest/"+quest.api_category+".png";
+			questType.appendChild(questIcon);
+
+			var questInfo = document.createElement("td");
+			var questTitle = document.createElement("div");
+			questTitle.innerHTML = "<strong style='font-size:1.1em'>"+quest.api_title+"</strong>";
+			var questDetail = document.createElement("div");
+			questDetail.innerHTML = quest.api_detail;
+			var questExtra = document.createElement("div");
+			questExtra.innerHTML = questTypes[quest.api_type] + "(#" + quest.api_no + ")" + " | 回报:" + quest.api_get_material.join("/");
+			questInfo.appendChild(questTitle);
+			questInfo.appendChild(questDetail);
+			questInfo.appendChild(questExtra);
+
+			var questStatus = document.createElement("td");
+			questStatus.className = "queststatus_"+quest.api_state;
+			questStatus.innerHTML = questState[quest.api_state];
+			questStatus.innerHTML += questProgress[quest.api_progress_flag];
+
+			questbox.appendChild(questType);
+			questbox.appendChild(questInfo);
+			questbox.appendChild(questStatus);
+
+			document.querySelector("#quest_list tbody").appendChild(questbox);
+		}
+	},
+	toggleQuest: function(questid, state) {
+		if (!window.token) {
+			alert("您不可以更改他人的任务状态.");
+			return;
+		}
+		document.querySelector("#questcell_"+questid).style.opacity = "0.5";
+		document.querySelector("#questcell_"+questid).onclick = function() {};
+		var stateActions = ["", "start", "stop", "clearitemget"];
+		$.ajax({
+			url: "/kcsapi/api_req_quest/"+stateActions[state],
+			method: "POST",
+			data: {
+				api_token: window.token,
+				api_verno: 1,
+				api_quest_id: questid
+			},
+			error: function() {
+				displayError("任务: 与服务器通信失败, 请检查网络连接");
+			},
+			success: function(svdata) {
+				// Warning: this data is svdata format
+				var data = JSON.parse(svdata.substr(svdata.indexOf("=")+1));
+				if (!data) {
+					displayError("任务: 返回数据无法无效(见控制台输出)");
+					console.log(svdata);
+				} else if (data.api_result != 1) {
+					// API failed
+					displayError("任务: 请求失败(错误"+data.api_result+")");
+					Quests.loadPage(Quests.currentPage);
+				} else {
+					// API succeeded
+					poi.resolve({detail: {
+						path: "/kcsapi/api_req_quest/"+stateActions[state],
+						method: "POST",
+						postBody:  {
+							api_token: window.token,
+							api_verno: 1,
+							api_quest_id: questid
+						},
+						body: data.api_data
+					}});
+				}
+			}
+		});
+	},
+	handleResponse: function(data) {
+		var req = data.detail;
+		var body = req.body;
+		switch(req.path) {
+			case '/kcsapi/api_get_member/questlist':
+				var questlist = body.api_list;
+				if (questlist.length > 0) {
+					// The page contains quests, inflate them
+					Quests.inflateQuests(questlist);
+				} else {
+					// The page is empty,
+					Quests.openpage(Quests.currentPage-1);
+				}
+				// Reset buttons
+				var pageCount = body.api_page_count;
+				Quests.pageCount = pageCount;
+				for (var i=Quests.currentPage+1; i<=pageCount; i++) {
+					document.querySelector("#Quests_page"+i).disabled = false;
+					document.querySelector("#Quests_page"+i).className = "btn btn-primary";
+				}
+				for (var i=pageCount+1; i<=9; i++) {
+					document.querySelector("#Quests_page"+i).disabled = true;
+					document.querySelector("#Quests_page"+i).className = "btn";
+				}
+				break;
+			case '/kcsapi/api_req_quest/clearitemget':
+				// Display received items to generate a slight delay
+				var reward = "您获得了: \n\n";
+				reward += "燃料 x"+body.api_material[0]+"\n";
+				reward += "弹药 x"+body.api_material[1]+"\n";
+				reward += "钢材 x"+body.api_material[2]+"\n";
+				reward += "铝土 x"+body.api_material[3]+"\n";
+				reward += "等(见Console)\n";
+				alert(reward);
+				console.log(body);
+				// Fall thru to refresh page
+			case '/kcsapi/api_req_quest/start':
+			case '/kcsapi/api_req_quest/stop':
+				// A quest has asked to change it, reload page
+				Quests.loadPage(Quests.currentPage);
+				break;
+		}
+	}
+}
+window.addEventListener("game.response", function(e) {
+	Quests.handleResponse(e);
+})
+</script>
