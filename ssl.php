@@ -1,21 +1,32 @@
-<!DOCTYPE html>
+<?php
+/**
+ *	ssl
+ *
+ *	Confirm SSL or plain connection
+ *	This page was originally for downloading the SSL certificate as that on kc.nfls.ga was self signed
+ *
+ *	2015 by ilufang
+ */
+
+require_once 'config.php';
+?><!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	<title>Kancolle Terminal SSL</title>
+	<title><?=$config['title']?> SSL</title>
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.cookie.js"></script>
 	<script type="text/javascript">
 	function redir(protocol) {
 		$.cookie("ssl", protocol, { expires: 365, path: '/' });
-		window.location.assign(protocol+"://kc.nfls.ga");
+		window.location.assign(protocol+"://<?=$config['serveraddr']?>");
 	}
 
 	</script>
 </head>
 <body>
-<div class="toolbar"><h1>Kancolle Terminal SSL</h1></div>
+<div class="toolbar"><h1><?=$config['title']?> SSL</h1></div>
 <br><br>
 <div class="box" style="width:80%">
 	<h2>您即将通过HTTPS访问本站</h2>
@@ -26,17 +37,7 @@
 		<li>保护您的Flash链接, 包括游戏token, 不被第三方抓改包</li>
 		<li>保护您的游戏不被第三方抓改包</li>
 	</ul>
-	<strong>请注意! 由于游戏数据也会被加密, 使用HTTPS时第三方浏览器(如KCV, Poi)可能将无法正常运行! 请务必在这些使用HTTP连接</strong>
-	<hr />
-	<h2>证书</h2>
-	由于我不是土豪买不起和服务器一样贵的证书, 为了加密数据服务器使用自签名证书. 使用HTTPS时浏览器可能会显示证书不被信任(红色HTTPS). 请无视此警告并选择继续. 你也可以下载服务器证书, 导入系统并选择信任, 以生成绿色https.<br /><br />
-	证书校验值:
-	<code style="display: block">
-		SHA1:	7036c133f328886d05d9fd51b49d1776ba90c740<br />
-		MD5:	4ccd153e8d1436723d524009d44ac93f
-	</code>
-	<br />
-	<a href="gaKancolle.crt" class="button" download>下载证书</a>
+	<strong>请注意! 由于游戏数据也会被加密, 使用HTTPS时第三方浏览器(如KCV, Poi, 但不包括KC3改)可能将无法正常运行! 请务必在这些使用HTTP连接</strong>
 	<hr />
 	<input type="button" value="使用HTTPS访问" onclick="redir('https')"/>   <input type="button" value="使用HTTP访问" onclick="redir('http')"/>
 </div>

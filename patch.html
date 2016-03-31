@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Access Patches</title>
+	<script type="text/javascript">
+	var patches = {
+		"dismissExp": {
+			name: "屏蔽远征归还提示",
+			description: "防止返回母港的远征归还CutIn阻塞脚本执行",
+			rules: [{"type":"PregReplace","arg1":"\"api_mission\":\\[(\\d+),(\\d+),(\\d+),(\\d+)\\],","arg2":"\"api_mission\":[0,0,0,0],","option":"#屏蔽远征"}]
+		},
+		"fuel": {
+			name: "捞油(2-3)",
+			description: "2-3捞油,启用后将无法推2-3",
+			rules: [{"type":"PregReplace","arg1":"\"api_maparea_id\":2,\"api_mapinfo_no\":3,\"api_no\":1,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":2,\"api_mapinfo_no\":3,\"api_no\":1,\"api_color_no\":$1,\"api_event_id\":6,\"api_event_kind\":$3,\"api_next\":0","option":"#油2-3沟"},{"type":"PregReplace","arg1":"\"api_maparea_id\":2,\"api_mapinfo_no\":3,\"api_no\":2,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":2,\"api_mapinfo_no\":3,\"api_no\":2,\"api_color_no\":$1,\"api_event_id\":2,\"api_event_kind\":$3,\"api_next\":0","option":"#油2-3退"}]
+		},
+		"ammo": {
+			name: "捞弹(1-2)",
+			description: "1-2捞弹,启用后将无法推1-2",
+			rules: [{"type":"PregReplace","arg1":"\"api_maparea_id\":1,\"api_mapinfo_no\":2,\"api_no\":1,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":1,\"api_mapinfo_no\":2,\"api_no\":1,\"api_color_no\":$1,\"api_event_id\":6,\"api_event_kind\":$3,\"api_next\":0","option":"#弹1-2\b沟"},{"type":"PregReplace","arg1":"\"api_maparea_id\":1,\"api_mapinfo_no\":2,\"api_no\":2,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":1,\"api_mapinfo_no\":2,\"api_no\":2,\"api_color_no\":$1,\"api_event_id\":2,\"api_event_kind\":$3,\"api_next\":0","option":"#弹1-2退"}],
+		},
+		"steel": {
+			name: "捞钢+弹(1-4)",
+			description: "1-4捞钢+弹,启用后将无法推1-4",
+			rules: [{"type":"PregReplace","arg1":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":1,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":1,\"api_color_no\":$1,\"api_event_id\":6,\"api_event_kind\":$3,\"api_next\":0","option":"#钢1-4沟"},{"type":"PregReplace","arg1":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":2,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":2,\"api_color_no\":$1,\"api_event_id\":6,\"api_event_kind\":$3,\"api_next\":0","option":"#钢1-4沟"},{"type":"PregReplace","arg1":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":5,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":1,\"api_mapinfo_no\":4,\"api_no\":5,\"api_color_no\":$1,\"api_event_id\":$2,\"api_event_kind\":$3,\"api_next\":0","option":"#钢1-4退"}]
+		},
+		"baux": {
+			name: "捞铝(2-2)",
+			description: "2-2捞铝,启用后将无法推2-2",
+			rules: [{"type":"PregReplace","arg1":"\"api_maparea_id\":2,\"api_mapinfo_no\":2,\"api_no\":1,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":2,\"api_mapinfo_no\":2,\"api_no\":1,\"api_color_no\":$1,\"api_event_id\":6,\"api_event_kind\":$3,\"api_next\":0","option":"#铝2-2沟"},{"type":"PregReplace","arg1":"\"api_maparea_id\":2,\"api_mapinfo_no\":2,\"api_no\":2,\"api_color_no\":(\\d+),\"api_event_id\":(\\d+),\"api_event_kind\":(\\d+),\"api_next\":(\\d+)","arg2":"\"api_maparea_id\":2,\"api_mapinfo_no\":2,\"api_no\":2,\"api_color_no\":$1,\"api_event_id\":$2,\"api_event_kind\":$3,\"api_next\":0","option":"#铝2-2退"}]
+		},
+		"steel2": {
+			name: "捞钢(3-2)",
+			description: "3-2捞钢,用于打完上路第一点后进击",
+			rules: [{"type":"PregReplace","arg1":"\"api_maparea_id\":3,\"api_mapinfo_no\":2,\"api_no\":5,\"api_color_no\":2,\"api_event_id\":2,\"api_event_kind\":0,\"api_next\":1","arg2":"\"api_maparea_id\":3,\"api_mapinfo_no\":2,\"api_no\":5,\"api_color_no\":2,\"api_event_id\":2,\"api_event_kind\":0,\"api_next\":0","option":"#钢3-2"}]
+		}
+	};
+	</script>
+	<script type="text/javascript">
+	function toggleSelected(id) {
+		patches[id].selected = !patches[id].selected;
+		if (patches[id].selected) {
+			document.getElementById('box_'+id).style.background = "rgba(102,255,102,0.2)";
+		} else {
+			document.getElementById('box_'+id).style.background = "";
+		}
+		// Export
+		var aggr = [];
+		for (var entry in patches) {
+			if (patches[entry].selected) {
+				aggr = aggr.concat(patches[entry].rules);
+			}
+		}
+		document.getElementById('export').value = JSON.stringify(aggr);
+	}
+	</script>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<style type="text/css">
+	.rule {
+		background: rgba(255,255,255,0.2);
+		margin: 0.5em 0em;
+		padding: 0.5em;
+	}
+	.rule:hover {
+		background: rgba(192,192,192,0.2);
+	}
+	</style>
+</head>
+<body>
+<div class="toolbar">
+	<h1>自动脚本辅助修改</h1>
+</div>
+<br /><br />
+<div class='box' id="rules">
+	<h2>规则列表</h2>
+
+</div>
+
+<div class='box'>
+	<h2>导出选中</h2>
+	<input type="text" readonly id="export" style="width:100%" />
+</div>
+
+<script type="text/javascript">
+	for (var entry in patches) {
+		patches[entry].selected = false;
+		var ruleBox = document.createElement("div");
+		ruleBox.id = "box_"+entry;
+		ruleBox.className="rule";
+		var title = document.createElement("strong");
+		title.innerHTML = patches[entry].name;
+		var description = document.createElement("p");
+		description.innerHTML = patches[entry].description;
+		var rule = document.createElement("input");
+		rule.type="text";
+		rule.readOnly = true;
+		rule.value = JSON.stringify(patches[entry].rules);
+		rule.style.width="100%";
+		ruleBox.appendChild(title);
+		ruleBox.appendChild(description);
+		ruleBox.appendChild(rule);
+		document.getElementById("rules").appendChild(ruleBox);
+		ruleBox.setAttribute("onclick", "toggleSelected('"+entry+"')");
+	}
+</script>
+</body>
+</html>

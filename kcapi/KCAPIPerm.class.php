@@ -1,5 +1,11 @@
 <?php
-
+/**
+ *	APIPerm
+ *
+ *	Denies access to a specific API if desired
+ *
+ *	2015 by ilufang
+ */
 class KCAPIPerm
 {
 	public static function beforeRequest($req) {

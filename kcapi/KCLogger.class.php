@@ -70,6 +70,8 @@ class KCLogger {
 			} else {
 				KCSql::inst()->delete("build_logs")->where("product=-2 AND type='LOOT' AND user=".$req->user->dmmid)->query();
 			}
+		} else if ($req->uri === "/kcsapi/api_port/port"){
+			KCSql::inst()->delete("build_logs")->where("product=-2 AND type='LOOT' AND user=".$req->user->dmmid)->query();
 		} else if ($req->uri === "/kcsapi/api_get_member/basic") {
 			$users = json_decode(file_get_contents("dmm-names.json"),true);
 			$users[$req->user->dmmid] = $req->response["api_nickname"];

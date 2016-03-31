@@ -1,11 +1,12 @@
 <?php
 /**
- *	index
+ *	login
  *
- *	Entry point
+ *	Login page
  *
  *	2015 by ilufang
  */
+require_once 'config.php';
 
 $protocol = "unset";
 
@@ -14,17 +15,17 @@ if (isset($_COOKIE['ssl'])) {
 }
 
 $active_protocol = "http";
-if($_SERVER['HTTPS'] == 'on'){
+if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'){
 	$active_protocol = "https";
 }
 
 if ($protocol==="http" && $active_protocol !== "http") {
-	header("Location: http://kc.nfls.ga".$_SERVER['REQUEST_URI']);
+	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 	die();
 }
 
 if ($protocol==="https" && $active_protocol !== "https") {
-	header("Location: https://kc.nfls.ga".$_SERVER['REQUEST_URI']);
+	header('Location: https://'.$config['serveraddr'].$_SERVER['REQUEST_URI']);
 	die();
 }
 
@@ -61,9 +62,9 @@ if (isset($_COOKIE['username']) && isset($_COOKIE['passhash']) && !isset($_REQUE
 </head>
 <body>
 	<div class="toolbar">
-		<h1>Kancolle Terminal</h1>
+		<h1><?=$config['title']?></h1>
 		<div>
-			<a href="ssl.html">切换HTTP/HTTPS</a>
+			<a href="ssl.php">切换HTTP/HTTPS</a>
 		</div>
 	</div>
 	<center>
@@ -100,12 +101,14 @@ if (isset($_COOKIE['username']) && isset($_COOKIE['passhash']) && !isset($_REQUE
 			window.location.assign("/");
 		}
 
-	<?php if ($_REQUEST["failure"]==="auth"): ?>
+	<?php if ($_REQUEST["failure"]==="auth"){ ?>
 	// Reset saved credentials
 	$.removeCookie("username");
 	$.removeCookie("passhash");
 	alert("无效的用户名密码");
-	<?php endif; ?>
+	<?php } else if ($_REQUEST["failure"]==="anon") { ?>
+	alert("该页面需要登录");
+	<?php }?>
 	</script>
 </body>
 </html>

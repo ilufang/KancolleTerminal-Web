@@ -1,1 +1,5 @@
 .DS_Store
+*.log
+kcres/files/*
+kcres/meta/*
+kcres/images/*

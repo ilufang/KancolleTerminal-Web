@@ -21,15 +21,17 @@
 900	#0D47A1
 */
 
+@import url("googleapis/ubuntu.css");
+
 body {
 	margin: 0px;
 	padding: 0px;
 	background: #E1F5FE;
 /*	background-color: white;
-	background-image: url(tanaka.png);*/
-	background-attachment: fixed;
+	background-image: url(tanaka.png);
+*/	background-attachment: fixed;
 	color: black;
-	font-family: Helvetica, Trebuchet, sans-serif, "STHeiti", "SimHei";
+	font-family: "Ubuntu", Helvetica, Trebuchet, sans-serif, "STHeiti", "SimHei";
 	-webkit-tap-highlight-color: transparent;
 	tap-hightlight-color: transparent;
 }
@@ -96,10 +98,17 @@ body {
 	display: block;
 	margin: 2em;
 	padding: 1.5em;
-	background: white;
+	background-color: white;
+	/*background-image: url("tanaka.png");*/
+	background-repeat: no-repeat;
+	background-position: 100% 0%;
 	color: black;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 	vertical-align: top;
+}
+
+table {
+	background-color: rgba(255,255,255,0.8)
 }
 
 input, label {
@@ -126,10 +135,11 @@ input[type=text]:active, input[type=password]:active {
 	border-bottom: solid 2px #2196F3;
 }
 
-input[type=button], input[type=submit], .button, .button:visited {
+button, input[type=button], input[type=submit], .button, .button:visited {
 	display: inline-block;
 	text-decoration: none;
 	padding: 0.6em;
+	margin: 0em;
 	font-size: 1.03em;
 	font-weight: bold;
 	color: white;
@@ -139,10 +149,10 @@ input[type=button], input[type=submit], .button, .button:visited {
 	border-radius: 3px;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
-input[type=button]:hover, input[type=submit]:hover, .button:hover {
+button:hover, input[type=button]:hover, input[type=submit]:hover, .button:hover {
 	background: #64B5F6;
 }
-input[type=button]:active, input[type=submit]:active, .button:hover {
+button:active, input[type=button]:active, input[type=submit]:active, .button:hover {
 	background: #1565C0;
 }
 
@@ -158,5 +168,10 @@ code {
 
 footer {
 	text-align: center;
+}
+
+.warn {
+	color: red;
+	font-weight: bold;
 }
 

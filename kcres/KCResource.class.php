@@ -33,7 +33,7 @@ function download() {
 	mkdir(dirname($this->meta_url),0777,true);
 
 	// Download file
-	$remote_url = "http://203.104.209.55".$this->uri;
+	$remote_url = "http://125.6.187.253".$this->uri;
 	$this->data = file_get_contents($remote_url);
 	if (strlen($this->data)==0) {
 		unlink($this->resource_url);
@@ -77,19 +77,23 @@ function getMeta() {
 		return $this->meta;
 	}
 	// Initialize
-	if (file_exists($this->meta_url)) {
+	if (file_exists($this->meta_url) ) {
 		// Read from existing file
+		//header("MetaPhase: 0");
 		$this->meta = json_decode(file_get_contents($this->meta_url),true);
 		$this->compareVersion();
 	} else {
+		//header("MetaPhase: 1");
 		if (!file_exists($this->resource_url)) {
 			$this->download();
 			file_put_contents("download.log", file_get_contents("download.log")."File not found:".$this->meta_url."\n");
 		} else {
 			$this->data = file_get_contents($this->resource_url);
+			header("Checksum: ".sha1($this->data));
 			$this->meta = array('checksum' => sha1($this->data), 'version' => 'custom');
 		}
 	}
+
 	return $this->meta;
 }
 
@@ -109,9 +113,14 @@ function getData() {
 	if (file_exists($this->resource_url)) {
 		// Read from existing file
 		$this->data = file_get_contents($this->resource_url);
-		if (strlen($this->data)==0 || sha1($this->data)!==$this->getMeta()['checksum']) {
+		//header("SHA-actual: ".sha1($this->data));
+		//header("SHA-record: ".$this->getMeta()['checksum']);
+		if (strlen($this->data)==0) {
 			$this->download();
-			file_put_contents("download.log", file_get_contents("download.log").$this->resource_url.": Null data"."\n");
+			file_put_contents("download.log", file_get_contents("download.log").$this->resource_url.": Empty data"."\n");
+		} else if (strcasecmp(sha1($this->data), $this->getMeta()['checksum']) != 0) {
+			$this->download();
+			file_put_contents("download.log", file_get_contents("download.log").$this->resource_url.": Corrupt data "."\n");
 		}
 	} else {
 		$this->download();
@@ -132,9 +141,19 @@ function getData() {
 function __construct($filename,$version) {
 	// User session
 	$this->user = new KCUser();
-	if ($this->user->initWithSession()) {
+	// Try get user info
+	if (!$this->user->initWithSession()) {
+		if (isset($_REQUEST["api_token"])) {
+			$this->user->initWithToken($_REQUEST["api_token"]);
+		} else if (isset($_COOKIE["username"])) {
+			$this->user->initWithAuth($_COOKIE["username"], $_COOKIE["passhash"]);
+		}
+	}
+
+	if ($this->user->init_status) {
 		if ($this->user->gamemode==3) {
 			$this->user = new KCForwardUser($this->user);
+			header("KC-User: ".$this->user->dmmid);
 			if (isset($this->user->kcaccess)) {
 				$cond_subject = " ";
 				$cond_rule = "(.*)";
@@ -151,12 +170,13 @@ function __construct($filename,$version) {
 						continue;
 					}
 					$entry["arg1"] = str_ireplace("%{REQUEST_URI}", $filename, $entry["arg1"]);
+					$entry["arg1"] = str_ireplace("/", "\\/", $entry["arg1"]);
 					$entry["arg2"] = str_ireplace("%{REQUEST_URI}", $filename, $entry["arg2"]);
 					switch ($entry["type"]) {
 						case 'RewriteRule':
 							if (preg_match("/$cond_rule/", $cond_subject)!=0) {
-								$filename = str_replace($entry["arg1"], $entry["arg2"], $filename);
-								file_put_contents("filename", file_get_contents("filename")."\n$filename: $entry[arg1]=>$entry[arg2]");
+								$filename = preg_replace("/$entry[arg1]/", $entry["arg2"], $filename);
+								header("KC-Rewrite: $filename");
 							}
 							$cond_subject = " ";
 							$cond_rule = "(.*)";
@@ -246,7 +266,7 @@ function printResponse() {
 	}
 
 	// Cache
-	header("Cache-Control: public, must_revalidate");
+	header("Cache-Control: public, must-revalidate");
 	header("Etag: \"$etag\"");
 
 	// Data

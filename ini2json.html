@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http\-equiv="Content\-Type" content="text/html;charset=utf\-8" />
+	<title>INI2JSON</title>
+	<style type="text/css">
+	textarea, input[type=text] {
+		display: block;
+		width: 100%;
+	}
+	</style>
+</head>
+<body>
+<h1>岛风Go配置文件转换器</h1>
+<input type="text" placeholder="Ship Filename" id="filename" />
+Paste INI here:
+<textarea id="ini" style='height:20em'></textarea>
+Result:
+<input type="text" readonly value="<Paste INI to parse>" id="opt0"/>
+<input type="text" readonly value="<Paste INI to parse>" id="opt1"/>
+<input type="text" readonly value="<Paste INI to parse>" id="opt2"/>
+<button onclick="exportdata()">生成导入用数据</button>
+<input type="hidden" value='\{"api_id":(\d+),"api_sortno":(\d+),"api_filename":"$1","api_version":"(\d+)","api_boko_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_boko_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_kaisyu_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_kaisyu_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_kaizo_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_kaizo_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_map_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_map_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_ensyuf_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_ensyuf_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_ensyue_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_battle_n":\[((\-)*(\d+)),((\-)*(\d+))\],"api_battle_d":\[((\-)*(\d+)),((\-)*(\d+))\],"api_weda":\[((\-)*(\d+)),((\-)*(\d+))\],"api_wedb":\[((\-)*(\d+)),((\-)*(\d+))\]\}' id="opt1_literal"/>
+<input type="hidden" value='{"api_id":$$1,"api_sortno":$$2,"api_filename":"$1","api_version":"$$3","api_boko_n":[$2,$5],"api_boko_d":[$8,$11],"api_kaisyu_n":[$14,$17],"api_kaisyu_d":[$20,$23],"api_kaizo_n":[$26,$29],"api_kaizo_d":[$32,$35],"api_map_n":[$38,$41],"api_map_d":[$44,$47],"api_ensyuf_n":[$50,$53],"api_ensyuf_d":[$56,$59],"api_ensyue_n":[$62,$65],"api_battle_n":[$68,$71],"api_battle_d":[$74,$77],"api_weda":[$80,$83],"api_wedb":[$86,$89]}' id="opt2_literal" />
+<script type="text/javascript">
+	document.getElementById("ini").oninput = update;
+	document.getElementById("filename").oninput = update;
+	function update () {
+		var inilines = document.getElementById('ini').value.split("\n");
+		var ini = {"_":{}};
+		var activeSection = ini["_"];
+		var section = /^\[(.*)\]$/;
+		var kvpair = /^(.*)=(.*)$/;
+		for (var i = 0; i < inilines.length; i++) {
+			if (inilines.length==0) {
+				continue;
+			} else if (section.exec(inilines[i])) {
+				var secName = section.exec(inilines[i])[1];
+				ini[secName] = {};
+				activeSection = ini[secName];
+			} else if (kvpair.exec(inilines[i])) {
+				var kv = kvpair.exec(inilines[i]);
+				activeSection[kv[1]] = kv[2];
+			} else {
+				//console.warn("Unrecognized line: "+inilines[i]);
+			}
+		}
+		document.getElementById("opt0").value = "PregReplace";
+		document.getElementById("opt1").value = document.getElementById("filename").value.replace(new RegExp(/(.*)/), document.getElementById("opt1_literal").value);
+		document.getElementById("opt2").value = [
+			document.getElementById("filename").value,
+			ini.graph.boko_n_left,
+			ini.graph.boko_n_top,
+			ini.graph.boko_d_left,
+			ini.graph.boko_d_top,
+			ini.graph.kaisyu_n_left,
+			ini.graph.kaisyu_n_top,
+			ini.graph.kaisyu_d_left,
+			ini.graph.kaisyu_d_top,
+			ini.graph.kaizo_n_left,
+			ini.graph.kaizo_n_top,
+			ini.graph.kaizo_d_left,
+			ini.graph.kaizo_d_top,
+			ini.graph.map_n_left,
+			ini.graph.map_n_top,
+			ini.graph.map_d_left,
+			ini.graph.map_d_top,
+			ini.graph.ensyuf_n_left,
+			ini.graph.ensyuf_n_top,
+			ini.graph.ensyuf_d_left,
+			ini.graph.ensyuf_d_top,
+			ini.graph.ensyue_n_left,
+			ini.graph.ensyue_n_top,
+			ini.graph.battle_n_left,
+			ini.graph.battle_n_top,
+			ini.graph.battle_d_left,
+			ini.graph.battle_d_top,
+			ini.graph.weda_left,
+			ini.graph.weda_top,
+			ini.graph.wedb_left,
+			ini.graph.wedb_top
+		].join(",").replace(new RegExp(/(\w+),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+)),((\-)*(\d+))/),document.getElementById("opt2_literal").value);
+	}
+	function exportdata() {
+		update();
+		prompt("请复制以下数据,粘贴到主页翻译器的导入中:", (JSON.stringify([{
+			type: document.getElementById('opt0').value,
+			arg1: document.getElementById('opt1').value,
+			arg2: document.getElementById('opt2').value,
+			option: ""
+		}])));
+	}
+</script>
+</body>
+</html>
+

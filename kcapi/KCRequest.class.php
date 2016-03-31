@@ -13,6 +13,7 @@ require_once "../config.php";
 require_once 'KCLogger.class.php';
 require_once 'KCFurnitureHacks.class.php';
 require_once 'KCAPIPerm.class.php';
+require_once 'KCViewer.class.php';
 
 class KCRequest {
 
@@ -29,7 +30,7 @@ public $response;
 // User session
 public $user;
 
-public $furnhack;
+public $furnhack, $viewer;
 
 /**
  *	Constructor
@@ -40,8 +41,9 @@ function __construct($uri, $post, $headers) {
 	$this->headers = $headers;
 	// Determine req_type
 	$user = new KCUser();
+
 	if ($user->initWithToken($this->post["api_token"])) {
-	//var_dump($user);
+	$this->viewer = new KCViewer($user);
 		switch ($user->gamemode) {
 			case 3:
 				$this->user = new KCForwardUser($user);
@@ -83,9 +85,11 @@ function forwardRequest() {
 	curl_setopt($curlSession, CURLOPT_URL, $url);
 	curl_setopt($curlSession, CURLOPT_HEADER, 1);
 
+
+
 	// Post arguments
-	curl_setopt($curlSession, CURLOPT_POST, 1);
-	curl_setopt($curlSession, CURLOPT_POSTFIELDS, file_get_contents("php://input")); // TODO
+	curl_setopt($curlSession, CURLOPT_POST, TRUE);
+	curl_setopt($curlSession, CURLOPT_POSTFIELDS, http_build_query($this->post)); // TODO
 	curl_setopt($curlSession,CURLOPT_ENCODING, '');
 	curl_setopt($curlSession, CURLOPT_RETURNTRANSFER,1);
 
@@ -97,13 +101,23 @@ function forwardRequest() {
 	// TODO replace some headers
 	$headers = array();
 	global $config;
-	foreach (getallheaders() as $key => $value) {
+	foreach ($this->headers as $key => $value) {
 		$value = str_ireplace($config["serveraddr"], $server, $value);
+		$value = str_ireplace("keep-alive", "close", $value);
 		$value = str_ireplace("home.php", "kcs/mainD2.swf?api_token=".$this->post["api_token"], $value);
+		if (strcasecmp($key, "Content-Length")==0) {
+			// Let curl automatically generate content length
+			continue;
+		}
 		$headers[] = "$key: $value";
 	}
-
 	curl_setopt($curlSession, CURLOPT_HTTPHEADER, $headers);
+
+	$uag = $_SERVER['HTTP_USER_AGENT'];
+	if (stripos($uag, "Android")!==FALSE || stripos($uag, "Mobile")!==FALSE || stripos($uag, "iPhone")!==FALSE || stripos($uag, "iPad")!==FALSE || stripos($uag, "Phone")!==FALSE) {
+		// Reset UAG
+		curl_setopt($curlSession, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
+	}
 
 	//Send the request and store the result in an array
 	$response = curl_exec ($curlSession);
@@ -113,7 +127,7 @@ function forwardRequest() {
 	        // If it wasn't...
 	        $this->req_type = "FAILURE";
 	        $this->errmsg = $url."|".curl_error($curlSession);
-	        $this->errno = 500;
+	        $this->errno = 502;
 	        return;
 	} else {
 
@@ -136,20 +150,34 @@ function forwardRequest() {
 			}
 		}
 
-		// Parse body
-		if (substr($body, 0, strlen("svdata"))!=="svdata") {
-			$body = gzdecode($body);
-		}
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		if ($httpCode < 400) {
+			// A valid response has been received
+			// Parse body
+			/*
+			if (substr($body, 0, strlen("svdata="))!=="svdata=") {
+				//$body = gzdecode($body);
+				// Gzip should not happen, if it erred, just return the data
+				header("KC-Exception: unparsable data");
+				die($body);
+			}
+			*/
 
 
-		$data = json_decode(substr($body, strlen("svdata=")),true);
-		if ($data["api_result"]!=1) {
-			$this->req_type = "FAILURE";
-			$this->errno = $data["api_result"];
-			return;
+			$data = json_decode(substr($body, strlen("svdata=")),true);
+			if ($data["api_result"]!=1) {
+				$this->req_type = "FAILURE";
+				$this->errno = $data["api_result"];
+				return;
+			} else {
+				$this->response = $data["api_data"];
+				$this->errno = 1;
+			}
 		} else {
-			$this->response = $data["api_data"];
-			$this->errno = 1;
+			// Server reported an error. Perhaps the server is down
+			$this->errno = $httpCode;
+			// $this->response = $body;
 		}
 	}
 	curl_close ($curlSession);
@@ -182,8 +210,37 @@ function beforeRequest() {
 
 	KCAPIPerm::beforeRequest($this);
 
+	if (explode("?",$this->uri)[0]==="/kcsapi/api_req_quest/clearitemget" && isset($this->post["api_quest"])) {
+		$erruser = $this->post['api_token'];
+		if (isset($this->user)) {
+			$dmmnames = json_decode(file_get_contents("dmm-names.json"),true);
+			$erruser = $dmmnames[$this->user->dmmid];
+		}
+		date_default_timezone_set("Asia/Shanghai");
+		foreach ($this->post as $key => $value) {
+			if ($key === 'api_token') {
+				$value = substr($value, 0, 8);
+			}
+		}
+	}
+
 	// start2 emergency solution
-	if (explode("?",$this->uri)[0]==="/kcsapi/api_start2" && file_exists("start2.json")) {
+	if (explode("?",$this->uri)[0]==="/kcsapi/api_start2" && file_exists("start2.json") && !isset($this->post["nocache"])) {
+
+		// Check 304 first
+		$filehash = substr(sha1_file("start2.json"), -8);
+		if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) { // TODO use header variables
+			$reqtags = explode("-", substr($_SERVER['HTTP_IF_NONE_MATCH'], 1, -1));
+			$reqhash = $reqtags[1];
+			$reqtime = $reqtags[0];
+			if (time() - intval($reqtime) < 86400 && $filehash === $reqhash) {
+				// Cache within 1 day AND start2 not changed
+				header("HTTP/1.1 304 Not Modified");
+				die();
+			}
+		}
+		header("Etag: \"".time()."-".$filehash."\"");
+
 		$this->response = json_decode(file_get_contents("start2.json"),true);
 		if ($this->response) {
 			$this->req_type = "REWRITTEN";
@@ -192,6 +249,8 @@ function beforeRequest() {
 			unlink("start2.json");
 		}
 	}
+	$this->viewer->beforeRequest($this);
+	$this->accessDeny();
 
 }
 
@@ -201,22 +260,21 @@ function beforeRequest() {
  *	Handle, log or modify the request or response after a response has been generated
  */
 function afterRequest() {
+	// start2 emergency solution
+	if ($this->uri==="/kcsapi/api_start2" && !file_exists("start2.json")) {
+		file_put_contents("start2.json", json_encode($this->response));
+	}
 	// TODO
 	if ($this->errno ==1 ) {
 		require_once 'KCViewer.class.php';
 		$user = new KCUser();
 		$user->initWithToken($this->post['api_token']);
-		$viewer = new KCViewer($user);
-		$viewer->afterRequest($this);
+		$this->viewer->afterRequest($this);
 
 		KCLogger::request($this);
 		$this->furnhack->afterRequest($this);
 	}
 
-	// start2 emergency solution
-	if ($this->uri==="/kcsapi/api_start2" && !file_exists("start2.json")) {
-		file_put_contents("start2.json", json_encode($this->response));
-	}
 }
 
 /**
@@ -307,6 +365,16 @@ function translate($data) {
 				$data = $this->furniture($data);
 				break;
 			*/
+			case "zhconvert":
+					if (preg_match($cond_rule, $cond_subject)!=0) {
+						if (strpos($data, "\\u") !== FALSE) {
+							require_once 'ZhConversion.php';
+							foreach ($zh2Hans as $key => $value) {
+								$data = str_replace($this->encodeUTFEntities($key), $this->encodeUTFEntities($value), $data);
+							}
+						}
+					}
+				break;
 			case "translate":
 			case "replace":
 				if (preg_match($cond_rule, $cond_subject)!=0) {
@@ -377,6 +445,40 @@ function translate($data) {
 }
 
 /**
+ *	accessDeny
+ *
+ *	Pre-request access processor
+ */
+function accessDeny() {
+	if (!isset($this->user->kcaccess)) {
+		return $data;
+	}
+	$cond_subject = " ";
+	$cond_rule = "(.*)";
+	foreach ($this->user->kcaccess as $entry) {
+		$disabled = false;
+		foreach (explode(" ", $entry['option']) as $option) {
+			switch ($option) {
+				case "!":
+					$disabled = true;
+			}
+		}
+		if ($disabled) {
+			continue;
+		}
+		$entry["arg1"] = $this->replaceKCAcessArgs($entry["arg1"]);
+		$entry["arg2"] = $this->replaceKCAcessArgs($entry["arg2"]);
+		switch ($entry["type"]) {
+			case 'SerialDump':
+				if ($this->uri==="/kcsapi/api_req_map/start" && $this->post["api_maparea_id"]==1) {
+					$this->response = json_decode('{"api_rashin_flg":0,"api_rashin_id":0,"api_maparea_id":1,"api_mapinfo_no":'.$this->post["api_mapinfo_no"].',"api_no":1,"api_color_no":4,"api_event_id":6,"api_event_kind":1,"api_next":0,"api_bosscell_no":3,"api_bosscomp":1,"api_airsearch":{"api_plane_type":0,"api_result":0}}', true);
+					$this->errno = 1;
+					$this->req_type = "REWRITTEN";
+				}
+		}
+	}
+}
+/**
  *	generateResponseString
  *
  *	Encode array as json and add aux info, readable by kancolle swf
@@ -399,7 +501,16 @@ function generateResponseString() {
 		case 201:
 			$result_msg = "Illegal request. (Please refresh page. A new token may be required)";
 			break;
+		case 403:
+			$result_msg = "Forbidden";
+			break;
+		case 404:
+			$result_msg = "Not Found";
+			break;
 		case 500:
+			$result_msg = "Internal Server Error";
+			break;
+		case 502:
 			$result_msg = "Curl Error: ".$this->errmsg;
 			break;
 		case 4010:
@@ -418,8 +529,11 @@ function generateResponseString() {
 			$erruser = $dmmnames[$this->user->dmmid];
 		}
 		date_default_timezone_set("Asia/Shanghai");
-		fwrite($errlog, "[".date("Y-m-d h:i:s")."] $erruser ".$this->errno."($_SERVER[REQUEST_URI])\n");
+		fwrite($errlog, "[".date("Y-m-d h:i:s")."] $erruser ".$this->errno."(".$this->uri.")\n");
 		foreach ($this->post as $key => $value) {
+			if ($key === 'api_token') {
+				$value = substr($value, 0, 8);
+			}
 			fwrite($errlog, "$key: $value\n");
 		}
 		fwrite($errlog, "\n");
@@ -432,20 +546,22 @@ function generateResponseString() {
 	return "svdata=$json";
 }
 
+function execute() {
+	$this->beforeRequest();
+	$this->request();
+	$this->afterRequest();
+}
 
 /**
  *	printResponse
  *
- *	Make request and sends to output. (Interface entry point)
+ *	Make request and return the svdata string. (Interface entry point)
  */
 function printResponse() {
-	$this->beforeRequest();
-	$this->request();
-	$this->afterRequest();
-
+	$this->execute();
 	// Print to output
 	// header("Content-Type: text/plain");
-	echo $this->generateResponseString();
+	return $this->generateResponseString();
 }
 
 

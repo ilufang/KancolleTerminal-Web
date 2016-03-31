@@ -5,6 +5,8 @@
  *	Screen makeRequest traffic to osapi.dmm.com
  *	Capture user's server and token
  *
+ *	WARNING: DEPRECATED. USE DMMAUTH TO LOGIN
+ *
  *	2015 by ilufang
  */
 
@@ -29,11 +31,7 @@ function writeUserToken() {
 		if(KCSql::inst()->update(array("token"=>$token,"starttime"=>$starttime,"serveraddr"=>$serverip,"lastupdate"=>date("M d Y h:i:s A")),"forward_users")->where("memberid=$userid")->query()!==false){
 			// Update user as well
 			KCSql::inst()->update(array("token"=>$token),"hub_users")->where("memberid=$userid")->query();
-		} else {
-			file_put_contents("write.txt", "req_err:".KCSql::inst()->error());
 		}
-	} else {
-		file_put_contents("write.txt", "array0:".KCSql::inst()->error());
 	}
 }
 

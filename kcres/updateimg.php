@@ -10,6 +10,14 @@ if (isset($_REQUEST['id'])) {
 	} else {
 		die("An error occurred.");
 	}
+} else if (isset($_REQUEST['filename'])) {
+	$filename = $_REQUEST['filename'];
+	if (fetchFilename($filename)) {
+		header("Location: shipimg.php?id=$filename");
+		die();
+	} else {
+		die("An error occurred.");
+	}
 }
 
 if (!isset($argv)) {
@@ -23,13 +31,21 @@ flush();
 $db = json_decode(file_get_contents("../kcapi/gamedb.json"), true);
 
 foreach ($db["ships"] as $ship) {
-	if (file_exists("images/ship/$ship[api_id]")) {
+	if (isset($ship["api_id"]) && file_exists("images/ship/$ship[api_id]/1.png")) {
 		echo "Skipping $ship[api_name]...\n";
+	} else if (file_exists("images/ship/$ship[api_filename]/export.log")) {
+		echo "Skipping $ship[api_filename]...\n";
 	} else {
 		echo "Fetching $ship[api_name]...\n";
 		ob_flush();
 		flush();
-		fetchShipImg($ship["api_id"]);
+		if (isset($ship["api_id"])) {
+			fetchShipImg($ship["api_id"]);
+		} else if (isset($ship["api_filename"])) {
+			fetchFilename($ship["api_filename"]);
+		} else {
+			echo "No File found\n";
+		}
 	}
 }
 

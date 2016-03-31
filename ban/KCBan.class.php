@@ -1,5 +1,11 @@
 <?php
-
+/**
+ *	Ban
+ *
+ *	Denies a user if he/she provoked other server members
+ *
+ *	2015 by ilufang
+ */
 class KCBan {
 	private $db, $dbfile;
 	function __construct($banfile) {
@@ -61,8 +67,8 @@ class KCBan {
 		if (count($this->db[$user])>3)
 		$actime += (count($this->db[$user])-3)*60*60*12;
 		$this->db[$user][$voteip] = $actime;
-		
-		
+
+
 		$this->save();
 		return $voteip;
 	}

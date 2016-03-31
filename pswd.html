@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Password Hashing</title>
+	<script type="text/javascript" src="js/sha.js"></script>
+	<style type="text/css">
+	input {
+		display: block;
+		font-family: monospace;
+		width: 90%;
+	}
+	</style>
+</head>
+<body>
+<input type="password" id="pswd" placeholder="Password" />
+<input type="text" readonly id="sha512" placeholder="Client Hash" />
+<input type="text" readonly id="sha1" placeholder="Server Hash" />
+<script type="text/javascript">
+	document.getElementById('pswd').addEventListener("input", function(){
+		var pswd = document.getElementById('pswd').value;
+		var sha512 = new jsSHA("SHA-512", "TEXT");
+		sha512.update(pswd);
+		var pswd512 = sha512.getHash("HEX");
+		document.getElementById('sha512').value = pswd512;
+		var sha1 = new jsSHA("SHA-1", "TEXT");
+		sha1.update(pswd512);
+		document.getElementById('sha1').value = sha1.getHash("HEX");
+
+	});
+</script>
+</body>
+</html>

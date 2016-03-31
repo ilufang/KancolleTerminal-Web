@@ -1,14 +1,18 @@
 AddDefaultCharset Off
+Options -Indexes
 
-# Begin Kancolle
+<Files "build-logs.php">
+#	Deny from all
+</Files>
+
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
 # DMM OpenSocial Capturing Proxy
-RewriteCond	%{HTTP_HOST}		^osapi\.dmm\.com$	[NC]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$			/osproxy.php			[NC,NS,L]
+# RewriteCond	%{HTTP_HOST}		^osapi\.dmm\.com$	[NC]
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$			/osproxy.php			[NC,NS,L]
 
 # DMM Proxy
 # RewriteCond     %{HTTP_HOST}            ^www\.dmm\.com$       [NC]
@@ -17,21 +21,30 @@ RewriteRule ^(.*)$			/osproxy.php			[NC,NS,L]
 # RewriteRule ^(.*)$                      /dmmproxy.php                   [NC,NS,L]
 
 # Viewer redirect
-RewriteRule	^v$		/index.php?v=flash	[NC]
-RewriteRule	^t$		/index.php?v=table	[NC]
-RewriteRule	^p$		/index.php?v=pages	[NC]
-RewriteRule	^w$		/index.php?v=web	[NC]
+RewriteRule	^v$		/index.php?v=flash		[NC]
+RewriteRule	^t$		/index.php?v=table		[NC]
+RewriteRule	^p$		/index.php?v=pages		[NC]
+RewriteRule	^w$		/index.php?v=web		[NC]
+RewriteRule	^i$		/index.php?v=viewer		[NC]
+
+RewriteRule	^ii$	/index.php?v=viewer2	[NC]
+RewriteRule	^l$		/build-logs.php			[NC,L,R=301]
 
 # Json parse
 RewriteRule .json$				/jsondecode.php		[NC,NS,L]
 
-# Specific Rewrites
 # World Logo
 RewriteRule ^kcs/resources/image/world/(.*)_l.png$	/kcres/world_l.png	[NC,NS,L]
 RewriteRule ^kcs/resources/image/world/(.*)_s.png$	/kcres/world_s.png	[NC,NS,L]
+RewriteRule ^kcs/resources/image/world/(.*)_t.png$	/kcres/world_t.png	[NC,NS,L]
 
-# General SWF-Requests rewrite
+# Empty furniture redirect
+RewriteRule ^kcs/resources/image/furniture/(chest|window|desk|floor|object)/100.png$ /kcres/files/mods/empty.png [NC,NS,L]
+
+# SWF resources handler
 RewriteRule ^kcs/(.*)$			/kcres/main.php		[NC,NS,L]
+
+# API requests handler
 RewriteRule ^kcsapi/(.*)$		/kcapi/main.php		[NC,NS,L]
 </IfModule>
 

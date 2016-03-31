@@ -60,8 +60,6 @@ function __construct() {
 	$this->con = new mysqli($config["mysql_host"],$config["mysql_user"],$config["mysql_pswd"],$config["mysql_db"]);
 	if ($this->con) {
 		$this->con->set_charset("utf8");
-	} else {
-		file_put_contents("sql.txt", "Connect fail: ".$this->con->connect_error);
 	}
 }
 
@@ -71,14 +69,12 @@ function __construct() {
  *	Make query and return result as an array of associative arrays
  */
 public function querySql($sql) {
-	file_put_contents("sql.txt", $sql);
 
 	global $config;
 
 	if (!$this->con) {
 		$this->con = new mysqli($config["mysql_host"],$config["mysql_user"],$config["mysql_pswd"],$config["mysql_db"]);
 		if ($this->con->connect_errno) {
-			file_put_contents("sql.txt", "Connect fail");
 			return false;
 		}
 		$this->con->set_charset("utf8");
@@ -87,21 +83,26 @@ public function querySql($sql) {
 
 	$result = $this->con->query($sql);
 
-	if (!$result) {
+	if ($result===FALSE) {
 		// For failed query
+		header("MySQL-Error: ".$this->error());
+		header("MySQL-Query: ".str_replace("\n", " ", $sql));
 		return false;
-	}
-
-	if ($result->num_rows == 0) {
-		// For empty response
+	} else if ($result===TRUE) {
 		return true;
-	}
+	} else if ($result->num_rows == 0) {
+		// For empty response
+		header("MySQL-Warn: Empty");
+		return true;
+	} else {
+		// Contains result
 
-	$ret = array();
-	while($row = $result->fetch_assoc()) {
-		$ret[] = $row;
+		$ret = array();
+		while($row = $result->fetch_assoc()) {
+			$ret[] = $row;
+		}
+		return $ret;
 	}
-	return $ret;
 }
 
 /**
@@ -205,25 +206,53 @@ public static function createDB() {
 		return false;
 	}
 
+	// Drop if exists
+	$con->query("DROP TABLE IF EXISTS $config[mysql_prefix]_forward_users");
+	$con->query("DROP TABLE IF EXISTS $config[mysql_prefix]_hub_users");
+	$con->query("DROP TABLE IF EXISTS $config[mysql_prefix]_build_logs");
+	$con->query("DROP TABLE IF EXISTS $config[mysql_prefix]_game_data");
+
 	// Basic user info
 	$sql = "CREATE TABLE $config[mysql_prefix]_hub_users (
-		memberid	INT AUTO_INCREMENT PRIMARY KEY,
-		username	VARCHAR(64),
-		password	VARCHAR(40),
-		gamemode	INT,
-		token		VARCHAR(40)
-	)";
+		`memberid`	INT AUTO_INCREMENT PRIMARY KEY,
+		`username`	VARCHAR(64),
+		`password`	VARCHAR(40),
+		`gamemode`	INT,
+		`token`		VARCHAR(40)
+	) DEFAULT CHARSET=utf8";
 	$con->query($sql);
 
 	// Forwarding user info
 	$sql = "CREATE TABLE $config[mysql_prefix]_forward_users (
-		memberid	INT PRIMARY KEY,
-		dmmid		INT,
-		token		VARCHAR(40),
-		starttime	BIGINT,
-		serveraddr	VARCHAR(16),
-		lastupdate	VARCHAR(64)
-	)";
+		`memberid`		INT PRIMARY KEY,
+		`dmmid`			INT,
+		`token`			VARCHAR(40),
+		`starttime`		BIGINT,
+		`serveraddr`	VARCHAR(16),
+		`lastupdate`	VARCHAR(64)
+	) DEFAULT CHARSET=utf8";
+	$con->query($sql);
+
+	// Log table
+	$sql = "CREATE TABLE $config[mysql_prefix]_build_logs (
+		`date`		TIMESTAMP NOT NULL PRIMARY KEY DEFAULT CURRENT_TIMESTAMP,
+		`user`		VARCHAR(16) NOT NULL,
+		`fuel`		INT(11) NOT NULL,
+		`ammo`		INT(11) NOT NULL,
+		`steel`		INT(11) NOT NULL,
+		`baux`		INT(11) NOT NULL,
+		`seaweed`	INT(11) NOT NULL,
+		`type`		VARCHAR(16) NOT NULL,
+		`product`	INT(11) NOT NULL
+	) DEFAULT CHARSET=utf8";
+	$con->query($sql);
+
+	// Game data table
+	$sql = "CREATE TABLE $config[mysql_prefix]_game_data (
+		`userid`	INT(11) NOT NULL PRIMARY KEY,
+		`gamedata`	LONGTEXT NOT NULL,
+		`updates`	LONGTEXT NOT NULL
+	) DEFAULT CHARSET=utf8";
 	$con->query($sql);
 
 }

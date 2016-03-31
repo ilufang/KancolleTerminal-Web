@@ -8,6 +8,8 @@
  *	2015 by ilufang
  */
 
+require_once 'config.php';
+
 $protocol = "unset";
 
 if (isset($_COOKIE['ssl'])) {
@@ -15,17 +17,17 @@ if (isset($_COOKIE['ssl'])) {
 }
 
 $active_protocol = "http";
-if($_SERVER['HTTPS'] == 'on'){
+if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on'){
 	$active_protocol = "https";
 }
 
 if ($protocol==="http" && $active_protocol !== "http") {
-	header("Location: http://kc.nfls.ga".$_SERVER['REQUEST_URI']);
+	header('Location: http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 	die();
 }
 
 if ($protocol==="https" && $active_protocol !== "https") {
-	header("Location: https://kc.nfls.ga".$_SERVER['REQUEST_URI']);
+	header('Location: https://'.$config['serveraddr'].$_SERVER['REQUEST_URI']);
 	die();
 }
 
@@ -70,10 +72,10 @@ if (!$user->initWithAuth($_COOKIE["username"],$_COOKIE["passhash"])) {
 </head>
 <body>
 <div class="toolbar">
-	<h1>Kancolle Terminal</h1>
+	<h1><?=$config['title']?></h1>
 	<div>
-		<?php echo $_COOKIE["username"]?>&nbsp;|&nbsp;
-		<a href="ssl.html">切换HTTS/HTTP</a>&nbsp;|&nbsp;
+		<?php echo $_COOKIE["username"];?>&nbsp;|&nbsp;
+		<a href="ssl.php">切换HTTS/HTTP</a>&nbsp;|&nbsp;
 		<a href="javascript:logout()">退出</a>
 
 	</div>

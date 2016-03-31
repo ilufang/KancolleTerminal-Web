@@ -5,6 +5,8 @@
  *	Forward traffic to osapi.dmm.com
  *	Screens makeRequest requests for token
  *
+ *	WARNING: DEPRECATED. USE DMMAUTH TO LOGIN
+ *
  *	2015 by ilufang
  */
 
@@ -72,7 +74,7 @@ curl_setopt($curlSession, CURLOPT_HTTPHEADER, $curl_headers);
 curl_setopt($curlSession, CURLOPT_RETURNTRANSFER,1);
 curl_setopt($curlSession, CURLOPT_TIMEOUT,30);
 curl_setopt($curlSession, CURLOPT_SSL_VERIFYHOST, 1);
-curl_setopt ($curlSession, CURLOPT_COOKIEJAR, $ckfile); 
+curl_setopt ($curlSession, CURLOPT_COOKIEJAR, $ckfile);
 curl_setopt ($curlSession, CURLOPT_COOKIEFILE, $ckfile);
 
 
@@ -97,14 +99,14 @@ if (curl_error($curlSession)){
 	//clean duplicate header that seems to appear on fastcgi with output buffer on some servers!!
 	$response = str_replace("HTTP/1.1 100 Continue\r\n\r\n","",$response);
 
-	$ar = explode("\r\n\r\n", $response, 2); 
+	$ar = explode("\r\n\r\n", $response, 2);
 
 
 	$header = $ar[0];
 	$body = $ar[1];
 
 	//handle headers - simply re-outputing them
-	$header_ar = split(chr(10),$header); 
+	$header_ar = split(chr(10),$header);
 	foreach($header_ar as $k=>$v){
 		if(!preg_match("/^Transfer-Encoding/",$v)){
 			$v = str_replace($base,$mydomain,$v); //header rewrite if needed

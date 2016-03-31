@@ -1,5 +1,12 @@
 <?php
-
+/**
+ *	entry inspect
+ *
+ *	Checks if the request is logged in
+ *	This script should be included on sensitive pages
+ *
+ *	2015 by ilufang
+ */
 if (!preg_match("/^(http|https)\:\/\/$_SERVER[SERVER_NAME]\/home.php$/", $_SERVER['HTTP_REFERER'])) {
 	// Not from home.php
 	require_once 'KCUser.class.php';

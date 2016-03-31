@@ -1,5 +1,30 @@
 <?php
-require_once 'KCSql.class.php';
+/**
+ *	Build logs
+ *
+ *	Displays the recent construction, development and looting of ALL server members
+ *
+ *	If your server is relatively open, you might want to delete or deny access to this page for privacy protection
+ *
+ *	2015 by ilufang
+ */
+
+// Authenticate first
+require_once 'KCForwardUser.class.php';
+
+if (!isset($_COOKIE["username"])) {
+	header("Location: login.php?failure=anon");
+	die();
+}
+
+$user = new KCUser();
+if (!$user->initWithAuth($_COOKIE["username"],$_COOKIE["passhash"])) {
+	header("Location: login.php?failure=anon");
+	die();
+}
+$user = new KCForwardUser($user);
+$dmmid = $user->dmmid;
+
 $db = json_decode(file_get_contents("kcapi/gamedb.json"),true);
 $users = json_decode(file_get_contents("kcapi/dmm-names.json"),true);
 ?>
@@ -88,6 +113,7 @@ if (isset($_COOKIE["where"])) {
 	$where = $_COOKIE["where"];
 }
 
+
 $order = "ORDER BY date DESC";
 if (isset($_COOKIE["order"])) {
 	$order = $_COOKIE["order"];
@@ -97,6 +123,18 @@ $where_loot = "baux=5 AND steel>5";
 if (isset($_COOKIE["where_loot"])) {
 	$where_loot = $_COOKIE["where_loot"];
 }
+
+// De-restrict
+$_REQUEST['nofilter'] = 1;
+
+// Restrict
+if (!isset($_REQUEST['nofilter'])) {
+	$where_orig = $where;
+	$where_loot_orig = $where_loot;
+	$where = "($where) AND user=$dmmid";
+	$where_loot = "($where_loot) AND user=$dmmid";
+}
+
 
 ?>
 
@@ -193,6 +231,16 @@ foreach ($logs as $entry) {
 </table>
 </div>
 
+<?php
+
+// Revert Restrict
+if (!isset($_REQUEST['nofilter'])) {
+	$where = $where_orig;
+	$where_loot = $where_loot_orig;
+}
+
+?>
+
 <div class="redir box">
 	<script type="text/javascript">
 	function filter_redir() {
@@ -215,6 +263,7 @@ foreach ($logs as $entry) {
 	}
 	</script>
 	<h2>过滤器</h2>
+	<!-- <strong style='color:red'>你只可以查看自己的记录</strong> -->
 	<table>
 		<tr>
 			<td><strong>筛选条件</strong></td>
@@ -266,7 +315,11 @@ foreach ($logs as $entry) {
 		</tr>
 	</table>
 	用括号(), AND和OR连接条件<br />
-	筛选(<code>WHERE</code>): <input type="text" id="cond_where_loot" value="<?php echo $where_loot;?>" /><br />
+	筛选(<code>WHERE</code>): <input type="text" id="cond_where_loot" value="<?php echo $where_loot;?>" list='loot_filters'/><br />
+	<datalist id="loot_filters">
+		<option value='baux=5 AND steel>5'>Boss点</option>
+		<option value='fuel=32 AND (baux=5 OR (ammo=4 AND steel=13))'>秋季活动</option>
+	</datalist>
 	<input type="button" onclick="filter_redir()" value="应用设置" />
 	<input type="button" onclick="reset_filters()" value="还原默认" />
 </div>

@@ -19,7 +19,8 @@ switch ($argv[1]) {
 		// Fall thru
 	case 'clearentry':
 		unlink("kcapi/start2.json");
-		unlink("kcres/meta/kcs/mainD2.swf.json");
+		unlink("kcres/files/kcs/mainD2.swf");
+		unlink("kcres/files/kcs/Core.swf");
 		echo "入口缓存已清除.";
 		break;
 	default:

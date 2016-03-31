@@ -5,6 +5,8 @@
  *	Update user's resource packs
  *	Ajax responder
  *
+ *	WARNING: DEPRECATED! USE KCACCESS INSTEAD
+ *
  *	2015 by ilufang
  */
 

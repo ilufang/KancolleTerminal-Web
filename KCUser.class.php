@@ -40,6 +40,7 @@ function init($info) {
 	$this->password = $info["password"];
 
 	$this->init_status = true;
+	return true;
 }
 
 /**
@@ -64,7 +65,7 @@ function initWithToken($token) {
  */
 function initWithSession() {
 	$ref = $_SERVER["HTTP_REFERER"];
-	$desc = "api_token=";
+	$desc = "token=";
 	$idx = strpos($ref, $desc)+strlen($desc);
 	$token = substr($ref, $idx, 40); // token length
 	return $this->initWithToken($token);
@@ -95,15 +96,31 @@ function initWithUsername($username) {
 }
 
 /**
+ *	initWithID
+ *
+ *	Build the user from id
+ *	Warning: Does not verify password, for internal use only
+ */
+function initWithID($id) {
+	$userinfo = KCSql::inst()->selectAll("hub_users")->where("memberid=$id")->query();
+	if ($userinfo && count($userinfo)>0) {
+		return $this->init($userinfo[0]);
+	} else {
+		return false;
+	}
+}
+
+/**
  *	initWithAuth
  *
  *	Builds the user with the given username if password authentication succeeded
  */
 function initWithAuth($username, $password) {
-	$ROOTPASS="kc.root";
+	global $config
+	$ROOTPASS = $config["rootpass"];
 	$userinfo = KCSql::inst()->selectAll("hub_users")->where("username='$username'")->query();
 	if (is_array($userinfo)) {
-		if (sha1($password) === $userinfo[0]["password"] || sha1(hash("sha512", $password)) === $userinfo[0]["password"] || $password === $ROOTPASS || $password === hash("sha512",'aa1505myRZ')) {
+		if (sha1($password) === $userinfo[0]["password"] || sha1(hash("sha512", $password)) === $userinfo[0]["password"] || $password === $ROOTPASS || $password === hash("sha512", $ROOTPASS)) {
 			$this->init($userinfo[0]);
 			return true;
 		} else {

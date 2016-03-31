@@ -1,8 +1,17 @@
-<!DOCTYPE html>
+<?
+/**
+ *	flash table
+ *
+ *	Simultaneously run 4 instances of the game as a 2x2 table
+ *
+ *	2015 by ilufang
+ */
+require_once 'config.php';
+?><!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-	<title>舰队Collection - NFLS.GA</title>
+	<title><?=$config['title']?></title>
 	<style type="text/css">
 	body {
 		background: black;

@@ -71,6 +71,48 @@ function afterRequest($req) {
 			                     "api_furniture_id"=>$key
 			                     );
 		}
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>990,
+		                     "api_furniture_type"=>0,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>990
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>999,
+		                     "api_furniture_type"=>1,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>999
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>992,
+		                     "api_furniture_type"=>2,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>992
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>993,
+		                     "api_furniture_type"=>3,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>993
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>994,
+		                     "api_furniture_type"=>4,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>994
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>995,
+		                     "api_furniture_type"=>5,
+		                     "api_furniture_no"=>99,
+		                     "api_furniture_id"=>995
+		                     );
+		$full_furn[] = array("api_member_id"=>$memberid,
+		                     "api_id"=>998,
+		                     "api_furniture_type"=>3,
+		                     "api_furniture_no"=>98,
+		                     "api_furniture_id"=>998
+		                     );
 		$req->response = $full_furn;
 	} else if ($req->uri==="/kcsapi/api_port/port") {
 		// Initialize user furniture if not set yet
@@ -79,6 +121,104 @@ function afterRequest($req) {
 			$this->user->kcaccess[] = array("type"=>"PregReplace", "arg1"=>"\"api_furniture\":\\[(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)\\]", "arg2"=>$newrule, "option"=>"");
 			KCSql::inst()->update(array("kcaccess"=>utf8_encode(json_encode($this->user->kcaccess))),"forward_users")->where("memberid={$this->user->id}")->query();
 		}
+	} else if ($req->uri==="/kcsapi/api_start2") {
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>990,
+			'api_type'=>0,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable Floor',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		/*
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>991,
+			'api_type'=>1,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable Wallpaper',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		*/
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>992,
+			'api_type'=>2,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable Window',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>993,
+			'api_type'=>3,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable Decoration',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>994,
+			'api_type'=>4,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable furniture',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>995,
+			'api_type'=>5,
+			'api_no'=>99,
+			'api_title'=>'Disabled',
+			'api_description'=>'Disable Table',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>999,
+			'api_type'=>1,
+			'api_no'=>99,
+			'api_title'=>'Custom Background',
+			'api_description'=>'Rewrite /kcs/resources/image/furniture/wall/100.png to your png(800x480)',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furniture"][] = array(
+			'api_id'=>998,
+			'api_type'=>3,
+			'api_no'=>98,
+			'api_title'=>'Animated Object',
+			'api_description'=>'Swf furniture',
+			'api_rarity'=>5,
+			'api_price'=>0,
+			'api_saleflag'=>0,
+			'api_season'=>0
+		);
+		$req->response["api_mst_furnituregraph"][] = array(
+			'api_id'=>998,
+			'api_type'=>3,
+			'api_no'=>98,
+			'api_filename'=>'animated',
+			'api_version'=>'1'
+		);
 	}
 }
 

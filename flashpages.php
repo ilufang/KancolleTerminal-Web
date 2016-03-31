@@ -1,11 +1,21 @@
-<?php
-$flashurl="/kcs/mainD2.swf?api_token=$_REQUEST[token]&api_starttime=$_REQUEST[starttime]";
+<?
+/**
+ *	flash pages
+ *
+ *	Simultaneously run up to 10 instances of the game in a window
+ *
+ *	2015 by ilufang
+ */
+require_once 'config.php';
+?><?php
+require_once 'config.php';
+$flashurl=$_SERVER['QUERY_STRING'];
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-	<title>舰队Collection - NFLS.GA</title>
+	<title><?=$config['title']?></title>
 	<style type="text/css">
 	body {
 		background: black;
@@ -13,10 +23,14 @@ $flashurl="/kcs/mainD2.swf?api_token=$_REQUEST[token]&api_starttime=$_REQUEST[st
 		padding: 0px;
 		margin: 0px;
 	}
-	iframe {
-		border: none;
+	iframe, div {
+		border: 0px;
 		padding: 0px;
 		margin: 0px;
+	}
+	#naviarea {
+		font-family: monospace, "Courier New";
+		transition: background 0.3s, color 0.3s;
 	}
 
 	</style>
@@ -26,6 +40,7 @@ $flashurl="/kcs/mainD2.swf?api_token=$_REQUEST[token]&api_starttime=$_REQUEST[st
 
 	var resizeTable = function() {
 		var width = window.innerWidth;
+		console.log(JSON.stringify({evt:"resize",width:width}));
 		var height = width / 800 * 480;
 		for (var i=0; i<games.length; i++) {
 			if (games[i]) {
@@ -104,6 +119,10 @@ $flashurl="/kcs/mainD2.swf?api_token=$_REQUEST[token]&api_starttime=$_REQUEST[st
 		if (chr == 'r' && confirm("Reset current page?")) {
 			// Reset page
 			games[current_page].src += "";
+			setTimeout(function() {
+				games[current_page].contentDocument.body.onkeypress = keyPressed;
+			}, 500);
+
 		}
 		var idx = parseInt(chr);
 		if (!isNaN(idx) && idx) {
@@ -113,12 +132,34 @@ $flashurl="/kcs/mainD2.swf?api_token=$_REQUEST[token]&api_starttime=$_REQUEST[st
 
 	window.onresize = resizeTable;
 	window.onkeypress = keyPressed;
+
+/*
+	function triggerLocating(display) {
+		if (display) {
+			var color = "hsl("+Math.floor(Math.random()*360)+",100%,70%)"
+			document.getElementById("naviarea").style.background = color;
+			document.getElementById("naviarea").style.color = color;
+		} else {
+			document.getElementById("naviarea").style.background = "none";
+			document.getElementById("naviarea").style.color = "#666";
+		}
+	}
+*/
+
+	// kctermjs trigger
+	function refreshGame() {
+		games[current_page].src += "";
+		setTimeout(function() {
+			games[current_page].contentDocument.body.onkeypress = keyPressed;
+		}, 500);
+	}
 	</script>
 </head>
 <body>
 	<div>
 		<div id="gamearea" align="center"></div>
-		<div id="naviarea" align="center" style="font-family:monospace"></div>
+		<!--<div id="naviarea" align="center" onmouseover="triggerLocating(true)" onmouseout="triggerLocating(false)"></div>-->
+		<div id="naviarea" align="center"></div>
 		<div align="center">
 			键盘1-9: 切换页面/打开新页面<br />
 			`,Shift+`: 在已打开页面中循环切换<br />

@@ -41,12 +41,10 @@ if ($_REQUEST["eula"]==="accept") {
 							$errmsg = "W.I.P.";
 							break;
 						case 3:
-							if(KCSql::inst()->insert(array("memberid"=>$memberid,"lastupdate"=>"Never(未定义)"),"forward_users")->query()) {
-								header("Location: home.php?user=$user&pswd=$pswd");
-								die();
-							} else {
-								$errmsg = "数据库请求错误: ".KCSql::inst()->error();
-							}
+							KCSql::inst()->insert(array("memberid"=>$memberid,"lastupdate"=>"Never(未定义)"),"forward_users")->query();
+							KCSql::inst()->insert(array("userid"=>$memberid),"game_data")->query();
+							header("Location: /");
+							die();
 							break;
 					}
 				} else {
@@ -61,7 +59,7 @@ if ($_REQUEST["eula"]==="accept") {
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-	<title>Kancolle Terminal Signup</title>
+	<title>新用户注册</title>
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="js/sha.js"></script>
@@ -73,10 +71,8 @@ if ($_REQUEST["eula"]==="accept") {
 			var shaObj = new jsSHA("SHA-512", "TEXT");
 			shaObj.update(pswd);
 			pswd = shaObj.getHash("HEX");
-			if (document.getElementById("savecreds").checked) {
-				$.cookie("username", user, { expires: 60, path: '/' });
-				$.cookie("passhash", pswd, { expires: 60, path: '/' });
-			}
+			$.cookie("username", user, { expires: 60, path: '/' });
+			$.cookie("passhash", pswd, { expires: 60, path: '/' });
 			document.getElementById('password').value = pswd;
 			return true;
 		}
@@ -84,7 +80,14 @@ if ($_REQUEST["eula"]==="accept") {
 
 </head>
 <body>
-	<h1>Kancolle Terminal</h1>
+
+	<div class="toolbar">
+		<h1>注册</h1>
+		<div>
+			<a href="ssl.php">切换HTTP/HTTPS</a>
+		</div>
+	</div>
+	<br>
 	<div class="box" style="width:80%">
 		<form method="POST" onsubmit="signup()">
 			<h2>用户注册</h2>
@@ -104,13 +107,12 @@ if ($_REQUEST["eula"]==="accept") {
 					<li>冒险: W.I.P.</li>
 					<li>观察者/转发: 作为代理和缓存加速, 透过本站访问你原来的服务器</li>
 				</ol>
-			</p>
-			<div style="height:8em;overflow:auto;border: 1px dashed #ccc;"><?php
+			</p-->
+			<div style="/*height:8em;overflow:auto;*/border: 1px dashed #ccc;"><?php
 			echo file_get_contents("eula.html");
-			?></div-->
+			?></div>
 			<input type="hidden" name="eula" required value="accept"><!--label>我已阅读,了解并同意上述条款</label--><br />
-			<input type="checkbox" id="savecreds"><label>自动登录</label><br />
-			<input type="submit" value="注册"/>
+			<input type="submit" value="同意并注册"/>
 		</form>
 	</div>
 	<footer>
