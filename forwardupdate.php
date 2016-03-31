@@ -2,7 +2,7 @@
 /**
  *	forwardupdate
  *
- *	Update user's forward settings
+ *	Update user's forward settings (login and set game url)
  *	Ajax responder
  *
  *	2015 by ilufang
@@ -20,8 +20,8 @@ if ($user->gamemode!=3) {
 require_once 'KCSql.class.php';
 
 if (strlen($_REQUEST['dmmuser'])>0 && strlen($_REQUEST['dmmpass'])>0) {
-	require_once 'dmmauth/pythonlogin.php';
-	$creds = pyDMMLogin($_REQUEST['dmmuser'], $_REQUEST['dmmpass']);
+	require_once 'dmmauth/dmmLogin.class.php';
+	$creds = dmmLogin::login($_REQUEST['dmmuser'], $_REQUEST['dmmpass']);
 	if (!$creds) {
 		die(json_encode(array("success"=>false, "reason"=>"登录脚本发生错误")));
 	}
@@ -48,7 +48,7 @@ if (intval($_REQUEST["dmmid"])>0) {
 	}
 }
 
-if (strlen($_REQUEST["swfurl"])>0) {
+if (isset($_REQUEST["swfurl"]) && strlen($_REQUEST["swfurl"])>0) {
 	$server = "";
 	$token = "";
 	$starttime = 0;
