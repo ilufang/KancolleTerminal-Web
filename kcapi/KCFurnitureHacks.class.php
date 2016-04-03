@@ -53,9 +53,9 @@ function afterRequest($req) {
 	if (!$this->initialized) {
 		return;
 	}
-	if ($req->uri==="/kcsapi/api_get_member/furniture") {
+	if ($req->uri==="/kcsapi/api_get_member/require_info") {
 		// Set as all furnitures purchased
-		$obj = $req->response;
+		$obj = $req->response['api_furniture'];
 		$memberid = $obj[0]['api_member_id'];
 		$db = json_decode(file_get_contents("gamedb.json"), true);
 		$badfurns = json_decode(file_get_contents("badfurns.json"), true);
@@ -113,7 +113,7 @@ function afterRequest($req) {
 		                     "api_furniture_no"=>98,
 		                     "api_furniture_id"=>998
 		                     );
-		$req->response = $full_furn;
+		$req->response['api_furniture'] = $full_furn;
 	} else if ($req->uri==="/kcsapi/api_port/port") {
 		// Initialize user furniture if not set yet
 		if (!$this->ruleFound) {
