@@ -116,7 +116,7 @@ function initWithID($id) {
  *	Builds the user with the given username if password authentication succeeded
  */
 function initWithAuth($username, $password) {
-	global $config
+	global $config;
 	$ROOTPASS = $config["rootpass"];
 	$userinfo = KCSql::inst()->selectAll("hub_users")->where("username='$username'")->query();
 	if (is_array($userinfo)) {

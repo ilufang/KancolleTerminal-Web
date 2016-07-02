@@ -229,7 +229,9 @@ public static function createDB() {
 		`token`			VARCHAR(40),
 		`starttime`		BIGINT,
 		`serveraddr`	VARCHAR(16),
-		`lastupdate`	VARCHAR(64)
+		`lastupdate`	VARCHAR(64),
+		`kcaccess`		LONGTEXT,
+		`respacks`		LONGTEXT
 	) DEFAULT CHARSET=utf8";
 	$con->query($sql);
 
