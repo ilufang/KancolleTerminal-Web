@@ -41,9 +41,8 @@ function __construct($uri, $post, $headers) {
 	$this->headers = $headers;
 	// Determine req_type
 	$user = new KCUser();
-
 	if ($user->initWithToken($this->post["api_token"])) {
-	$this->viewer = new KCViewer($user);
+		$this->viewer = new KCViewer($user);
 		switch ($user->gamemode) {
 			case 3:
 				$this->user = new KCForwardUser($user);
@@ -65,7 +64,6 @@ function __construct($uri, $post, $headers) {
 	} else {
 		$this->errno = 4010;
 	}
-
 }
 
 
@@ -78,14 +76,12 @@ function __construct($uri, $post, $headers) {
 function forwardRequest() {
 	// Generate request url
 	$server = $this->user->server;
-	$url = "http://$server".$this->uri;
-
+	$url = "https://$server".$this->uri;
+	header("Curl-URL: $url");
 	// Curl
 	$curlSession = curl_init();
 	curl_setopt($curlSession, CURLOPT_URL, $url);
 	curl_setopt($curlSession, CURLOPT_HEADER, 1);
-
-
 
 	// Post arguments
 	curl_setopt($curlSession, CURLOPT_POST, TRUE);
@@ -142,29 +138,27 @@ function forwardRequest() {
 
 		//handle headers - simply re-outputing them
 		//file_put_contents("header.log", $header);
-		$header_ar = split(chr(10),$header);
+		$header_ar = explode(chr(10),$header);
+		/*
 		foreach($header_ar as $k=>$v){
-			if(!( preg_match("/^Transfer-Encoding/",$v) || preg_match("/^Content-Encoding/",$v) )){
-				$v = str_replace($server,$config["serveraddr"],$v); //header rewrite if needed
-				header(trim($v));
+			if (strcasecmp($k, 'Transfer-Encoding')==0) {
+				continue;
 			}
+			if (strcasecmp($k, 'Content-Encoding')==0) {
+				continue;
+			}
+			if (strcasecmp($k, 'Content-Length')==0) {
+				continue;
+			}
+			$v = str_replace($server,$config["serveraddr"],$v); //header rewrite if needed
+			header(trim($v));
 		}
+		*/
 
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$httpCode = curl_getinfo($curlSession, CURLINFO_HTTP_CODE);
 
 		if ($httpCode < 400) {
 			// A valid response has been received
-			// Parse body
-			/*
-			if (substr($body, 0, strlen("svdata="))!=="svdata=") {
-				//$body = gzdecode($body);
-				// Gzip should not happen, if it erred, just return the data
-				header("KC-Exception: unparsable data");
-				die($body);
-			}
-			*/
-
-
 			$data = json_decode(substr($body, strlen("svdata=")),true);
 			if ($data["api_result"]!=1) {
 				$this->req_type = "FAILURE";
